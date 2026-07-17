@@ -95,7 +95,7 @@ conn.commit()
 st.set_page_config(
     page_title="Enterprise EMIS", page_icon="🏢", layout="wide"
 )
-st.title("🏢 Enterprise School EMIS Pro")
+st.title("🏢 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
 st.write("Complete Educational Management Suite with Advanced Analytics.")
 
 # --- SIDEBAR NAVIGATION ---
