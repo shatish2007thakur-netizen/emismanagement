@@ -93,7 +93,7 @@ conn.commit()
 
 # --- APP CONFIGURATION ---
 st.set_page_config(
-    page_title="Enterprise EMIS", page_icon="🏢", layout="wide"
+    page_title="JANTA EMIS", page_icon="🏢", layout="wide"
 )
 st.title("🏢 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
 st.write("Complete Educational Management Suite with Advanced Analytics.")
@@ -512,7 +512,7 @@ elif choice == "Financial Billing":
         # HTML Structure for Print
         receipt_html = f"""
         <div id="printable-bill" style="padding:15px; border:2px dashed #333; max-width:350px; font-family:monospace; background-color:white; color:black; margin: 0 auto;">
-            <h2 style="text-align:center; margin:0;">SCHOOL EMIS PRO</h2>
+            <h2 style="text-align:center; margin:0;">janta secondary school billing system</h2>
             <p style="text-align:center; margin:0 0 10px 0;">Official Fee Receipt</p>
             <hr style="border-top: 1px dashed #333;">
             <p><b>Date:</b> {st.session_state['last_bill_date']}</p>
