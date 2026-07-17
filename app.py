@@ -406,7 +406,7 @@ elif choice == "Library Management":
         else:
             st.info("Library transaction log is empty.")
 
-# --- 7. FINANCIAL BILLING (UPDATED WITH PRINT SYSTEM) ---
+# --- 7. FINANCIAL BILLING (FIXED PRINT SYSTEM) ---
 elif choice == "Financial Billing":
     st.header("💰 Fee Management & Print Invoice")
 
@@ -440,7 +440,7 @@ elif choice == "Financial Billing":
                 ],
             )
 
-            # Pehle payment save hogi
+            # Payment save button
             if st.button("Save Payment", type="primary"):
                 current_date = datetime.date.today().strftime("%Y-%m-%d")
 
@@ -451,7 +451,7 @@ elif choice == "Financial Billing":
                 )
                 conn.commit()
 
-                # Session State me billing data store karna confirmation box ke liye
+                # Session State me data store karna
                 st.session_state["show_print_dialog"] = True
                 st.session_state["last_bill_roll"] = sel_roll
                 st.session_state["last_bill_amount"] = amount
@@ -501,19 +501,17 @@ elif choice == "Financial Billing":
         )
         st.dataframe(df_bill, use_container_width=True)
 
-    # --- LIVE PRINT RECEIPT GENERATOR ---
-    # Agar user 'Yes' click karta hai toh ye hidden printable structure active hoga
+    # --- LIVE PRINT RECEIPT GENERATOR (FIXED) ---
     if st.session_state.get("trigger_print_layout", False):
-        # Student ki full details fetch karna receipt ke liye
         s_roll = st.session_state["last_bill_roll"]
         student_data = students_list[students_list["roll_no"] == s_roll].iloc[0]
 
         st.markdown("---")
         st.subheader("🖨️ Printer Receipt Preview")
 
-        # Clean HTML Layout jo direct printer me bina page cuts ke standard size me aayega
+        # HTML Structure for Print
         receipt_html = f"""
-        <div id="printable-bill" style="padding:20px; border:2px dashed #333; max-width:400px; font-family:monospace; background-color:white; color:black;">
+        <div id="printable-bill" style="padding:15px; border:2px dashed #333; max-width:350px; font-family:monospace; background-color:white; color:black; margin: 0 auto;">
             <h2 style="text-align:center; margin:0;">SCHOOL EMIS PRO</h2>
             <p style="text-align:center; margin:0 0 10px 0;">Official Fee Receipt</p>
             <hr style="border-top: 1px dashed #333;">
@@ -538,18 +536,15 @@ elif choice == "Financial Billing":
         </div>
         
         <script>
-            // Ye JavaScript code seedhe aapke system ka printer dialog box open kar dega
-            var printContents = document.getElementById('printable-bill').innerHTML;
-            var originalContents = document.body.innerHTML;
-            document.body.innerHTML = printContents;
-            window.print();
-            document.body.innerHTML = originalContents;
-            window.location.reload(); // Page reload taaki dashboard wapas normal ho jaye
+            // Automatically triggers browser print setup window smoothly
+            window.onload = function() {{
+                window.print();
+            }}
         </script>
         """
 
-        # Components ko execution ke liye HTML render karna
-        st.components.v1.html(receipt_html, height=500, scroller=True)
-
-        # Print hone ke baad state clean karna
+        # Fixed: Removed scroller=True to fix the TypeError
+        st.components.v1.html(receipt_html, height=450, scrolling=True)
+        
+        # Reset the trigger so it doesn't open print dialog on every page refresh
         st.session_state["trigger_print_layout"] = False
