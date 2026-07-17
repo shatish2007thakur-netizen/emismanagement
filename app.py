@@ -406,32 +406,150 @@ elif choice == "Library Management":
         else:
             st.info("Library transaction log is empty.")
 
-# --- 7. FINANCIAL BILLING ---
+# --- 7. FINANCIAL BILLING (UPDATED WITH PRINT SYSTEM) ---
 elif choice == "Financial Billing":
-    st.header("💰 Fee Management")
-    # Same as previous code logic for simplicity
-    students_list = pd.read_sql_query("SELECT roll_no, name FROM students", conn)
-    if not students_list.empty:
-        student_options = {
-            f"{row['roll_no']} - {row['name']}": row["roll_no"]
-            for _, row in students_list.iterrows()
-        }
-        sel_roll = student_options[
-            st.selectbox("Select Student", list(student_options.keys()))
-        ]
-        amount = st.number_input("Amount", min_value=0.0)
-        fee_type = st.text_input("Fee Type (e.g., Tuition)")
-        if st.button("Save Payment"):
-            c.execute(
-                "INSERT INTO billing (roll_no, fee_type, amount, date) VALUES (?, ?, ?, ?)",
-                (
-                    sel_roll,
-                    fee_type,
-                    amount,
-                    datetime.date.today().strftime("%Y-%m-%d"),
-                ),
+    st.header("💰 Fee Management & Print Invoice")
+
+    col1, col2 = st.columns([1, 2])
+
+    students_list = pd.read_sql_query(
+        "SELECT roll_no, name, student_class, section FROM students", conn
+    )
+
+    with col1:
+        st.subheader("Add Payment Entry")
+        if not students_list.empty:
+            # Dropdown options create karna
+            student_options = {
+                f"{row['roll_no']} - {row['name']}": row["roll_no"]
+                for _, row in students_list.iterrows()
+            }
+            selected_student_text = st.selectbox(
+                "Select Student", list(student_options.keys())
             )
-            conn.commit()
-            st.success("Payment Logged!")
-    df_bill = pd.read_sql_query("SELECT * FROM billing", conn)
-    st.dataframe(df_bill, use_container_width=True)
+            sel_roll = student_options[selected_student_text]
+
+            amount = st.number_input("Amount (₹)", min_value=0.0, step=100.0)
+            fee_type = st.selectbox(
+                "Fee Type",
+                [
+                    "Monthly Tuition Fee",
+                    "Exam Fee",
+                    "Admission Fee",
+                    "Transport Fee",
+                ],
+            )
+
+            # Pehle payment save hogi
+            if st.button("Save Payment", type="primary"):
+                current_date = datetime.date.today().strftime("%Y-%m-%d")
+
+                # Database me payment auto-save karna
+                c.execute(
+                    "INSERT INTO billing (roll_no, fee_type, amount, date) VALUES (?, ?, ?, ?)",
+                    (sel_roll, fee_type, amount, current_date),
+                )
+                conn.commit()
+
+                # Session State me billing data store karna confirmation box ke liye
+                st.session_state["show_print_dialog"] = True
+                st.session_state["last_bill_roll"] = sel_roll
+                st.session_state["last_bill_amount"] = amount
+                st.session_state["last_bill_type"] = fee_type
+                st.session_state["last_bill_date"] = current_date
+
+                st.success("Payment Logged & Auto-Saved in Database!")
+                st.rerun()
+
+        else:
+            st.warning("Pehle Student Profiles tab me jaakar student add karein.")
+
+        # --- YES/NO CONFIRMATION BOX ---
+        if st.session_state.get("show_print_dialog", False):
+            st.markdown("---")
+            st.warning("❓ **Kya aap is Invoice ko Printer se print karna chahte hain?**")
+
+            col_yes, col_no = st.columns(2)
+
+            with col_yes:
+                if st.button("Yes (Print Bill)", key="btn_yes_print"):
+                    st.session_state["trigger_print_layout"] = True
+                    st.session_state["show_print_dialog"] = False
+                    st.rerun()
+
+            with col_no:
+                if st.button("No (Cancel)", key="btn_no_print"):
+                    st.session_state["show_print_dialog"] = False
+                    st.info("Print option cancel kar diya gaya.")
+                    st.rerun()
+
+    with col2:
+        st.subheader("Billing & Transaction Ledger")
+        df_bill = pd.read_sql_query(
+            """
+            SELECT b.bill_id as 'Inv No', 
+                   s.name as 'Student Name', 
+                   b.roll_no as 'Roll No', 
+                   b.fee_type as 'Fee Type', 
+                   b.amount as 'Paid Amount', 
+                   b.date as 'Date' 
+            FROM billing b 
+            JOIN students s ON b.roll_no = s.roll_no
+            ORDER BY b.bill_id DESC
+        """,
+            conn,
+        )
+        st.dataframe(df_bill, use_container_width=True)
+
+    # --- LIVE PRINT RECEIPT GENERATOR ---
+    # Agar user 'Yes' click karta hai toh ye hidden printable structure active hoga
+    if st.session_state.get("trigger_print_layout", False):
+        # Student ki full details fetch karna receipt ke liye
+        s_roll = st.session_state["last_bill_roll"]
+        student_data = students_list[students_list["roll_no"] == s_roll].iloc[0]
+
+        st.markdown("---")
+        st.subheader("🖨️ Printer Receipt Preview")
+
+        # Clean HTML Layout jo direct printer me bina page cuts ke standard size me aayega
+        receipt_html = f"""
+        <div id="printable-bill" style="padding:20px; border:2px dashed #333; max-width:400px; font-family:monospace; background-color:white; color:black;">
+            <h2 style="text-align:center; margin:0;">SCHOOL EMIS PRO</h2>
+            <p style="text-align:center; margin:0 0 10px 0;">Official Fee Receipt</p>
+            <hr style="border-top: 1px dashed #333;">
+            <p><b>Date:</b> {st.session_state['last_bill_date']}</p>
+            <p><b>Roll No:</b> {student_data['roll_no']}</p>
+            <p><b>Name:</b> {student_data['name']}</p>
+            <p><b>Class/Sec:</b> {student_data['student_class']} - {student_data['section']}</p>
+            <hr style="border-top: 1px dashed #333;">
+            <table style="width:100%; text-align:left;">
+                <tr>
+                    <th>Description</th>
+                    <th style="text-align:right;">Amount</th>
+                </tr>
+                <tr>
+                    <td>{st.session_state['last_bill_type']}</td>
+                    <td style="text-align:right;">₹{st.session_state['last_bill_amount']:.2f}</td>
+                </tr>
+            </table>
+            <hr style="border-top: 1px dashed #333;">
+            <h3 style="text-align:right; margin:0;">Total Paid: ₹{st.session_state['last_bill_amount']:.2f}</h3>
+            <p style="text-align:center; margin-top:20px; font-size:12px;">Thank You! Keep this receipt safe.</p>
+        </div>
+        
+        <script>
+            // Ye JavaScript code seedhe aapke system ka printer dialog box open kar dega
+            var printContents = document.getElementById('printable-bill').innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            window.location.reload(); // Page reload taaki dashboard wapas normal ho jaye
+        </script>
+        """
+
+        # Components ko execution ke liye HTML render karna
+        st.components.v1.html(receipt_html, height=500, scroller=True)
+
+        # Print hone ke baad state clean karna
+        st.session_state["trigger_print_layout"] = False
