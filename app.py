@@ -368,14 +368,20 @@ elif choice == "Financial Billing":
             selected_student_text = st.selectbox("Select Student", list(student_options.keys()))
             sel_roll = student_options[selected_student_text]
 
-            # --- DYNAMICALLY FETCH PREVIOUS DUES FROM SUPABASE ---
+            # --- DYNAMICALLY FETCH LATEST REMAINING BALANCE (ACTUAL DUES) ---
             previous_dues = 0.0
             try:
-                # Student ki saari pichli billing history uthayenge
-                past_bills_res = supabase.table("billing").select("remaining_balance").eq("roll_no", sel_roll).execute()
+                # Student ki sabse latest billing entry fetch karenge (bill_id ya date ke hisab se descending order me)
+                past_bills_res = supabase.table("billing")\
+                    .select("remaining_balance")\
+                    .eq("roll_no", sel_roll)\
+                    .order("bill_id", descending=True)\
+                    .limit(1)\
+                    .execute()
+                
                 if past_bills_res.data:
-                    # Saare remaining balances ka sum nikalenge
-                    previous_dues = sum([float(row['remaining_balance']) for row in past_bills_res.data if row['remaining_balance'] is not None])
+                    # Sirf sabse aakhri (latest) entry ka remaining balance hi asli baki fee hai
+                    previous_dues = float(past_bills_res.data[0]['remaining_balance']) if past_bills_res.data[0]['remaining_balance'] is not None else 0.0
             except Exception as e:
                 st.error(f"Error fetching past dues: {e}")
 
