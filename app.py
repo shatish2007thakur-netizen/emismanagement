@@ -246,7 +246,7 @@ elif choice == "Student Profiles":
             student_class = st.selectbox(
                 "Class", [str(i) for i in range(1, 13)] + ["Nursery", "LKG", "UKG"]
             )
-            section = st.selectbox("Section", ["Technical", "Education", "Science"])
+            section = st.selectbox("Section", ["Technical", "Education", "Science", "A (English medium)", "B"])
             phone = st.text_input("Parent's Contact No.")
             
             if st.form_submit_button("Save Student"):
