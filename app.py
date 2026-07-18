@@ -368,19 +368,19 @@ elif choice == "Financial Billing":
             selected_student_text = st.selectbox("Select Student", list(student_options.keys()))
             sel_roll = student_options[selected_student_text]
 
-            # --- DYNAMICALLY FETCH LATEST REMAINING BALANCE (ACTUAL DUES) ---
+            # --- DYNAMICALLY FETCH LATEST REMAINING BALANCE (FIXED ORDER FUNCTION) ---
             previous_dues = 0.0
             try:
-                # Student ki sabse latest billing entry fetch karenge (bill_id ya date ke hisab se descending order me)
+                # Naye Supabase SDK ke mutabik 'desc=True' use hota hai descending ke liye
                 past_bills_res = supabase.table("billing")\
                     .select("remaining_balance")\
                     .eq("roll_no", sel_roll)\
-                    .order("bill_id", descending=True)\
+                    .order("bill_id", desc=True)\
                     .limit(1)\
                     .execute()
                 
                 if past_bills_res.data:
-                    # Sirf sabse aakhri (latest) entry ka remaining balance hi asli baki fee hai
+                    # Sabse aakhri bill ka balance uthana
                     previous_dues = float(past_bills_res.data[0]['remaining_balance']) if past_bills_res.data[0]['remaining_balance'] is not None else 0.0
             except Exception as e:
                 st.error(f"Error fetching past dues: {e}")
