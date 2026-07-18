@@ -75,19 +75,91 @@ if choice == "Dashboard Overview":
         today_str = datetime.date.today().strftime("%Y-%m-%d")
         att_res = supabase.table("attendance").select("attendance_id").eq("date", today_str).eq("status", "Present").execute()
         present_today = len(att_res.data) if att_res.data else 0
-    except Exception as e:
+   except Exception as e:
         st.error(f"Dashboard Load Error: {e}")
         total_students, total_teachers, total_earnings, present_today = 0, 0, 0.0, 0
 
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric(label="Total Students", value=int(total_students))
-    with col2:
-        st.metric(label="Active Teachers", value=int(total_teachers))
-    with col3:
-        st.metric(label="Total Revenue", value=f"₹{total_earnings:,.2f}")
-    with col4:
-        st.metric(label="Students Present Today", value=int(present_today))
+    # --- DYNAMICALLY FETCH TOTAL EXPENSES FROM SUPABASE ---
+    total_expenses = 0.0
+    try:
+        exp_res = supabase.table("expenses").select("amount").execute()
+        if exp_res.data:
+            total_expenses = sum([float(row['amount']) for row in exp_res.data if row['amount'] is not None])
+    except Exception as e:
+        total_expenses = 0.0
+
+    # Remaining/Net Wallet Balance ki Calculation
+    net_balance = total_earnings - total_expenses
+
+    # Changing layout to 5 columns to accommodate Expense & Net Balance
+    st.markdown("### 📈 Real-time Key Metrics")
+    m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
+    
+    with m_col1:
+        st.metric(label="👥 Total Students", value=int(total_students))
+    with m_col2:
+        st.metric(label="👨‍🏫 Active Teachers", value=int(total_teachers))
+    with m_col3:
+        st.metric(label="💰 Total Revenue", value=f"₹{total_earnings:,.2f}")
+    with m_col4:
+        st.metric(label="💸 Total Expenses", value=f"₹{total_expenses:,.2f}", delta=f"-₹{total_expenses:,.0f}", delta_color="inverse")
+    with m_col5:
+        st.metric(label="🏦 Net Balance (Wallet)", value=f"₹{net_balance:,.2f}")
+
+    st.markdown("---")
+
+    # --- NEW SECTION: EXPENSE & INVESTMENT TRACKER SYSTEM ---
+    st.subheader("📉 School Investment & Expense Tracker")
+    exp_col1, exp_col2 = st.columns([1, 2])
+
+    with exp_col1:
+        st.markdown("#### ➕ Add New Expense")
+        exp_purpose = st.selectbox("Expense Purpose / Category", [
+            "Teacher & Staff Salary", 
+            "School Infrastructure & Furniture", 
+            "Electricity & Utility Bills", 
+            "Lab & Computers Maintenance", 
+            "Library Books Purchase", 
+            "Sports & ECA Equipment",
+            "Stationery & Printing",
+            "Miscellaneous Expenses"
+        ])
+        exp_amount = st.number_input("Amount Invested/Spent (₹)", min_value=0.0, step=500.0, value=1000.0)
+        
+        if st.button("Log Expense", type="secondary", use_container_width=True):
+            try:
+                today_str = datetime.date.today().strftime("%Y-%m-%d")
+                supabase.table("expenses").insert({
+                    "purpose": exp_purpose,
+                    "amount": exp_amount,
+                    "date": today_str
+                }).execute()
+                st.success("Expense added successfully!")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Failed to log expense: {e}")
+
+    with exp_col2:
+        st.markdown("#### 📜 Recent Expense Ledger")
+        try:
+            exp_ledger_res = supabase.table("expenses").select("*").order("expense_id", desc=True).execute()
+            if exp_ledger_res.data:
+                df_exp = pd.DataFrame(exp_ledger_res.data)
+                df_exp = df_exp.rename(columns={
+                    "expense_id": "ID",
+                    "purpose": "Description / Purpose",
+                    "amount": "Spent Amount (₹)",
+                    "date": "Date"
+                })
+                st.dataframe(df_exp[["ID", "Description / Purpose", "Spent Amount (₹)", "Date"]], use_container_width=True, hide_index=True)
+            else:
+                st.info("No school expenses logged yet.")
+        except Exception as e:
+            st.error(f"Error loading expense ledger: {e}")
+
+    st.markdown("---")
+    # Yahan se aapka aage ka code start hoga jo pehle tha (Recent System Activity wala...)
+    st.subheader("📊 Recent System Activity")
 
     # Analytics Section
     st.subheader("📊 Recent System Activity")
