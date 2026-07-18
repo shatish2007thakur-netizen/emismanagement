@@ -352,7 +352,7 @@ elif choice == "Library Management":
 
 # --- 7. FINANCIAL BILLING ---
 elif choice == "Financial Billing":
-    st.header("💰 Fee Management & Dues Tracker (Partial Payments)")
+    st.header("💰 Fee Management & Smart Dues Tracker")
     col1, col2 = st.columns([1, 2])
 
     try:
@@ -368,45 +368,68 @@ elif choice == "Financial Billing":
             selected_student_text = st.selectbox("Select Student", list(student_options.keys()))
             sel_roll = student_options[selected_student_text]
 
+            # --- DYNAMICALLY FETCH PREVIOUS DUES FROM SUPABASE ---
+            previous_dues = 0.0
+            try:
+                # Student ki saari pichli billing history uthayenge
+                past_bills_res = supabase.table("billing").select("remaining_balance").eq("roll_no", sel_roll).execute()
+                if past_bills_res.data:
+                    # Saare remaining balances ka sum nikalenge
+                    previous_dues = sum([float(row['remaining_balance']) for row in past_bills_res.data if row['remaining_balance'] is not None])
+            except Exception as e:
+                st.error(f"Error fetching past dues: {e}")
+
+            # Pichla baki dikhane ke liye alert box
+            if previous_dues > 0:
+                st.error(f"🛑 Pichla Baki Amount (Previous Outstanding Dues): ₹{previous_dues:,.2f}")
+            else:
+                st.info("💡 Is student ka koi pichla baki amount nahi hai.")
+
+            st.markdown("---")
             fee_type = st.selectbox("Fee Type", ["Monthly Tuition Fee", "Exam Fee", "Admission Fee", "Transport Fee"])
             
-            # Naye fields partial payment track karne ke liye
-            total_due_amount = st.number_input("Total Fee Amount (Kul Kitna Dena Tha) ₹", min_value=0.0, step=100.0, value=2000.0)
-            amount_paid = st.number_input("Amount Paid Now (Abhi Kitna Diya) ₹", min_value=0.0, max_value=total_due_amount, step=100.0)
+            # Inputs
+            current_fee_amount = st.number_input("Current Fee Amount (Is Baar Ki Fee) ₹", min_value=0.0, step=100.0, value=2000.0)
             
-            # Auto calculate remaining balance
-            remaining_balance = total_due_amount - amount_paid
+            # AUTOMATICALLY ADD PREVIOUS DUES TO TOTAL
+            total_payable = current_fee_amount + previous_dues
+            st.markdown(f"### 📋 Total Payable: **₹{total_payable:,.2f}** *(Current + Pichla Baki)*")
             
-            # Live status screen par dikhane ke liye
-            if remaining_balance > 0:
-                st.warning(f"⚠️ Baki Fee (Due Balance): ₹{remaining_balance:,.2f}")
+            amount_paid = st.number_input("Amount Paid Now (Abhi Kitna Diya) ₹", min_value=0.0, max_value=total_payable, step=100.0)
+            
+            # New Remaining Balance Calculation
+            new_remaining_balance = total_payable - amount_paid
+            
+            if new_remaining_balance > 0:
+                st.warning(f"⚠️ Naya Baki Balance (Carried Forward): ₹{new_remaining_balance:,.2f}")
             else:
-                st.success("✅ Full Payment Received! No Dues.")
+                st.success("✅ Account Cleared! Zero Dues.")
 
             if st.button("Save Payment", type="primary"):
                 try:
                     current_date = datetime.date.today().strftime("%Y-%m-%d")
                     
-                    # Supabase me data insert (Naye columns ke sath)
-                    # Note: Apne Supabase database me total_amount, amount_paid aur remaining_balance columns add kar lena.
+                    # Supabase me entry save karna
                     supabase.table("billing").insert({
                         "roll_no": sel_roll, 
-                        "fee_type": fee_type, 
-                        "total_amount": total_due_amount,
-                        "amount": amount_paid,  # 'amount' column me paid amount jayega
-                        "remaining_balance": remaining_balance,
+                        "fee_type": f"{fee_type} (+ Dues)" if previous_dues > 0 else fee_type, 
+                        "total_amount": total_payable,
+                        "amount": amount_paid, 
+                        "remaining_balance": new_remaining_balance,
                         "date": current_date
                     }).execute()
 
                     st.session_state["show_print_dialog"] = True
                     st.session_state["last_bill_roll"] = sel_roll
-                    st.session_state["last_bill_total"] = total_due_amount
+                    st.session_state["last_bill_prev_dues"] = previous_dues
+                    st.session_state["last_bill_current"] = current_fee_amount
+                    st.session_state["last_bill_total"] = total_payable
                     st.session_state["last_bill_paid"] = amount_paid
-                    st.session_state["last_bill_due"] = remaining_balance
+                    st.session_state["last_bill_due"] = new_remaining_balance
                     st.session_state["last_bill_type"] = fee_type
                     st.session_state["last_bill_date"] = current_date
 
-                    st.success("Payment Logged & Dues Tracked in Cloud Database!")
+                    st.success("Payment Logged & Dues Rolled Over Successfully!")
                     st.rerun()
                 except Exception as e:
                     st.error(f"Error saving bill: {e}")
@@ -415,7 +438,7 @@ elif choice == "Financial Billing":
 
         if st.session_state.get("show_print_dialog", False):
             st.markdown("---")
-            st.warning("❓ **Kya aap is Invoice ko Printer se print karna chahte hain?**")
+            st.warning("❓ **Kya aap is Invoice ko Print karna chahte hain?**")
             col_yes, col_no = st.columns(2)
             if col_yes.button("Yes (Print Bill)", key="btn_yes_print"):
                 st.session_state["trigger_print_layout"] = True
@@ -423,7 +446,6 @@ elif choice == "Financial Billing":
                 st.rerun()
             if col_no.button("No (Cancel)", key="btn_no_print"):
                 st.session_state["show_print_dialog"] = False
-                st.info("Print option cancel kar diya gaya.")
                 st.rerun()
 
     with col2:
@@ -434,20 +456,18 @@ elif choice == "Financial Billing":
                 df_b_raw = pd.DataFrame(b_res.data)
                 df_bill = pd.merge(df_b_raw, students_list, on="roll_no")
                 
-                # Ledger Column formatting takki baki fees clear dikhe
                 df_bill = df_bill.rename(columns={
                     "bill_id": "Inv No", 
                     "name": "Student Name", 
                     "roll_no": "Roll No", 
-                    "fee_type": "Fee Type", 
-                    "total_amount": "Total Fee (₹)",
-                    "amount": "Paid Amount (₹)", 
-                    "remaining_balance": "Baki Amount (Due ₹)",
+                    "fee_type": "Fee Description", 
+                    "total_amount": "Total Payable (₹)",
+                    "amount": "Amount Paid (₹)", 
+                    "remaining_balance": "Net Dues Baki (₹)",
                     "date": "Date"
                 })
                 
-                # Table ko screen par display karna
-                st.dataframe(df_bill[["Inv No", "Student Name", "Roll No", "Fee Type", "Total Fee (₹)", "Paid Amount (₹)", "Baki Amount (Due ₹)", "Date"]], use_container_width=True)
+                st.dataframe(df_bill[["Inv No", "Student Name", "Roll No", "Fee Description", "Total Payable (₹)", "Amount Paid (₹)", "Net Dues Baki (₹)", "Date"]], use_container_width=True)
             else:
                 st.info("No bills found.")
         except Exception as e:
@@ -458,7 +478,7 @@ elif choice == "Financial Billing":
         student_data = students_list[students_list["roll_no"] == s_roll].iloc[0]
 
         st.markdown("---")
-        st.subheader("🖨️ Printer Receipt Preview (With Dues Status)")
+        st.subheader("🖨️ Printer Receipt Preview")
 
         receipt_html = f"""
         <div id="printable-bill" style="padding:15px; border:2px dashed #333; max-width:350px; font-family:monospace; background-color:white; color:black; margin: 0 auto;">
@@ -470,14 +490,12 @@ elif choice == "Financial Billing":
             <p><b>Name:</b> {student_data['name']}</p>
             <p><b>Class/Sec:</b> {student_data['student_class']} - {student_data['section']}</p>
             <hr style="border-top: 1px dashed #333;">
-            <table style="width:100%; text-align:left;">
-                <tr><th>Description</th><th style="text-align:right;">Amount</th></tr>
-                <tr><td>{st.session_state['last_bill_type']}</td><td style="text-align:right;">₹{st.session_state['last_bill_total']:.2f}</td></tr>
-            </table>
+            <p>Current Fee ({st.session_state['last_bill_type']}): ₹{st.session_state['last_bill_current']:.2f}</p>
+            <p>Previous Outstanding Dues: ₹{st.session_state['last_bill_prev_dues']:.2f}</p>
             <hr style="border-top: 1px dashed #333;">
-            <p style="text-align:right; margin:2px 0;">Total Due: ₹{st.session_state['last_bill_total']:.2f}</p>
-            <p style="text-align:right; margin:2px 0; color: green;"><b>Amount Paid: ₹{st.session_state['last_bill_paid']:.2f}</b></p>
-            <p style="text-align:right; margin:2px 0; color: red;"><b>Remaining Due: ₹{st.session_state['last_bill_due']:.2f}</b></p>
+            <p style="text-align:right; margin:2px 0;"><b>Total Payable: ₹{st.session_state['last_bill_total']:.2f}</b></p>
+            <p style="text-align:right; margin:2px 0; color: green;"><b>Amount Paid Now: ₹{st.session_state['last_bill_paid']:.2f}</b></p>
+            <p style="text-align:right; margin:2px 0; color: red;"><b>Remaining Net Dues: ₹{st.session_state['last_bill_due']:.2f}</b></p>
             <hr style="border-top: 1px dashed #333;">
             <p style="text-align:center; margin-top:20px; font-size:12px;">Thank You! Keep this receipt safe.</p>
         </div>
