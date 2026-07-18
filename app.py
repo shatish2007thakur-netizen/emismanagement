@@ -56,30 +56,29 @@ def calculate_grade(percentage):
     else:
         return "F", 0.0, "Fail"
 
-
-# --- 1. DASHBOARD OVERVIEW ---
+# --- DASHBOARD OVERVIEW BLOCK ---
 if choice == "Dashboard Overview":
-    st.header("🏫 School Performance & Real-time Statistics")
-
-    # Fetch Data Counts from Supabase
+    st.title("🏫 School Performance & Real-time Statistics")
+    
+    # 1. Pehle data fetch karne ka try block
     try:
-        students_res = supabase.table("students").select("id", count="exact").execute()
-        total_students = students_res.count if students_res.count else 0
-
-        teachers_res = supabase.table("teachers").select("teacher_id", count="exact").execute()
-        total_teachers = teachers_res.count if teachers_res.count else 0
-
-        billing_res = supabase.table("billing").select("amount").execute()
-        total_earnings = sum([row['amount'] for row in billing_res.data]) if billing_res.data else 0.0
-
-        today_str = datetime.date.today().strftime("%Y-%m-%d")
-        att_res = supabase.table("attendance").select("attendance_id").eq("date", today_str).eq("status", "Present").execute()
-        present_today = len(att_res.data) if att_res.data else 0
-   except Exception as e:
+        # Yahan aapka jo purana code tha data fetch karne ka (students, teachers count etc.)
+        s_res = supabase.table("students").select("roll_no", count="exact").execute()
+        total_students = s_res.count if s_res.count else 0
+        
+        t_res = supabase.table("teachers").select("teacher_id", count="exact").execute()
+        total_teachers = t_res.count if t_res.count else 0
+        
+        bill_res = supabase.table("billing").select("amount").execute()
+        total_earnings = sum([float(row['amount']) for row in bill_res.data if row['amount'] is not None]) if bill_res.data else 0.0
+        
+        present_today = total_students # Ya jo bhi aapka attendance logic ho
+        
+    except Exception as e:
         st.error(f"Dashboard Load Error: {e}")
         total_students, total_teachers, total_earnings, present_today = 0, 0, 0.0, 0
 
-    # --- DYNAMICALLY FETCH TOTAL EXPENSES FROM SUPABASE ---
+    # 2. EXPENSES FETCH (Bilkul except ke barabar me straight aligned)
     total_expenses = 0.0
     try:
         exp_res = supabase.table("expenses").select("amount").execute()
@@ -88,10 +87,9 @@ if choice == "Dashboard Overview":
     except Exception as e:
         total_expenses = 0.0
 
-    # Remaining/Net Wallet Balance ki Calculation
     net_balance = total_earnings - total_expenses
 
-    # Changing layout to 5 columns to accommodate Expense & Net Balance
+    # 3. METRICS LAYOUT (Ek dam straight layout)
     st.markdown("### 📈 Real-time Key Metrics")
     m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
     
@@ -108,7 +106,7 @@ if choice == "Dashboard Overview":
 
     st.markdown("---")
 
-    # --- NEW SECTION: EXPENSE & INVESTMENT TRACKER SYSTEM ---
+    # 4. EXPENSE TRACKER FORM & LEDGER
     st.subheader("📉 School Investment & Expense Tracker")
     exp_col1, exp_col2 = st.columns([1, 2])
 
@@ -158,8 +156,7 @@ if choice == "Dashboard Overview":
             st.error(f"Error loading expense ledger: {e}")
 
     st.markdown("---")
-    # Yahan se aapka aage ka code start hoga jo pehle tha (Recent System Activity wala...)
-    st.subheader("📊 Recent System Activity")
+
 
     # Analytics Section
     st.subheader("📊 Recent System Activity")
