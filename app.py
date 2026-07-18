@@ -133,7 +133,7 @@ elif choice == "Student Profiles":
     with tab1:
         with st.form("add_student", clear_on_submit=True):
             name = st.text_input("Student Full Name")
-            roll_no = st.text_input("Admission / Roll No.")
+            roll_no = st.text_input("Roll No.")
             student_class = st.selectbox(
                 "Class", [str(i) for i in range(1, 13)] + ["Nursery", "LKG", "UKG"]
             )
