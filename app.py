@@ -135,9 +135,9 @@ elif choice == "Student Profiles":
             name = st.text_input("Student Full Name")
             roll_no = st.text_input("Admission / Roll No.")
             student_class = st.selectbox(
-                "Class", [str(i) for i in range(1, 13)] + ["LKG", "UKG"]
+                "Class", [str(i) for i in range(1, 13)] + ["Nursery", "LKG", "UKG"]
             )
-            section = st.selectbox("Section", ["A", "B", "C"])
+            section = st.selectbox("Section", ["Technical", "Education", "Science"])
             phone = st.text_input("Parent's Contact No.")
             
             if st.form_submit_button("Save Student") and name and roll_no:
