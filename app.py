@@ -355,6 +355,21 @@ elif choice == "Financial Billing":
     st.header("💰 Fee Management & Smart Dues Tracker")
     col1, col2 = st.columns([1, 2])
 
+    # --- DYNAMIC FEE RATES DICTIONARY ---
+    fee_rates = {
+        "Monthly Tuition Fee": 1000.0,
+        "Exam Fee": 350.0,
+        "Admission Fee": 750.0,
+        "Transport Fee": 0.0,
+        "Registration Fee": 600.0,
+        "Uniform Fee": 1200.0,
+        "Book Fee": 1500.0,
+        "Annual Fee": 3000.0,
+        "Fine/Late Fee": 50.0,
+        "Certificate fee": 350.0,
+        "Extra Curricular Activities Fee": 200.0
+    }
+
     try:
         s_res = supabase.table("students").select("roll_no", "name", "student_class", "section").execute()
         students_list = pd.DataFrame(s_res.data) if s_res.data else pd.DataFrame()
@@ -368,10 +383,10 @@ elif choice == "Financial Billing":
             selected_student_text = st.selectbox("Select Student", list(student_options.keys()))
             sel_roll = student_options[selected_student_text]
 
-            # --- DYNAMICALLY FETCH LATEST REMAINING BALANCE (FIXED ORDER FUNCTION) ---
+            # --- DYNAMICALLY FETCH LATEST REMAINING BALANCE ---
             previous_dues = 0.0
             try:
-                # Naye Supabase SDK ke mutabik 'desc=True' use hota hai descending ke liye
+                # Naye SDK me '.order("column", desc=True)' se crash nahi hota
                 past_bills_res = supabase.table("billing")\
                     .select("remaining_balance")\
                     .eq("roll_no", sel_roll)\
@@ -380,7 +395,6 @@ elif choice == "Financial Billing":
                     .execute()
                 
                 if past_bills_res.data:
-                    # Sabse aakhri bill ka balance uthana
                     previous_dues = float(past_bills_res.data[0]['remaining_balance']) if past_bills_res.data[0]['remaining_balance'] is not None else 0.0
             except Exception as e:
                 st.error(f"Error fetching past dues: {e}")
@@ -392,16 +406,21 @@ elif choice == "Financial Billing":
                 st.info("💡 Is student ka koi pichla baki amount nahi hai.")
 
             st.markdown("---")
-            fee_type = st.selectbox("Fee Type", ["Monthly Tuition Fee", "Exam Fee", "Admission Fee", "Transport Fee", "Registration Fee", "Uniform Fee", "Book Fee", "Annual Fee", "Fine/Late Fee", "Certificate fee", "Extra Curricular Activities Fee"])
             
-            # Inputs
-            current_fee_amount = st.number_input("Current Fee Amount (Is Baar Ki Fee) ₹", min_value=0.0, step=100.0, value=2000.0)
+            # Fee Dropdown selection
+            fee_type = st.selectbox("Fee Type", list(fee_rates.keys()))
+            
+            # Automatically fetch the default rate based on selection
+            default_rate = fee_rates[fee_type]
+            
+            # Dynamic Input Box (Jo select karoge, uska rate yahan automatic load hoga)
+            current_fee_amount = st.number_input("Current Fee Amount (Is Baar Ki Fee) ₹", min_value=0.0, step=50.0, value=default_rate)
             
             # AUTOMATICALLY ADD PREVIOUS DUES TO TOTAL
             total_payable = current_fee_amount + previous_dues
             st.markdown(f"### 📋 Total Payable: **₹{total_payable:,.2f}** *(Current + Pichla Baki)*")
             
-            amount_paid = st.number_input("Amount Paid Now (Abhi Kitna Diya) ₹", min_value=0.0, max_value=total_payable, step=100.0)
+            amount_paid = st.number_input("Amount Paid Now (Abhi Kitna Diya) ₹", min_value=0.0, max_value=total_payable, step=50.0)
             
             # New Remaining Balance Calculation
             new_remaining_balance = total_payable - amount_paid
