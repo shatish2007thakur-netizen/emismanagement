@@ -386,7 +386,7 @@ elif choice == "Financial Billing":
                 st.info("💡 Is student ka koi pichla baki amount nahi hai.")
 
             st.markdown("---")
-            fee_type = st.selectbox("Fee Type", ["Monthly Tuition Fee", "Exam Fee", "Admission Fee", "Transport Fee"])
+            fee_type = st.selectbox("Fee Type", ["Monthly Tuition Fee", "Exam Fee", "Admission Fee", "Transport Fee", "Registration Fee", "Uniform Fee", "Book Fee", "Annual Fee", "Fine/Late Fee", "Certificate fee", "ECA Fee"])
             
             # Inputs
             current_fee_amount = st.number_input("Current Fee Amount (Is Baar Ki Fee) ₹", min_value=0.0, step=100.0, value=2000.0)
