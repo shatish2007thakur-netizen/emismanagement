@@ -352,7 +352,7 @@ elif choice == "Library Management":
 
 # --- 7. FINANCIAL BILLING ---
 elif choice == "Financial Billing":
-    st.header("💰 Fee Management & Print Invoice")
+    st.header("💰 Fee Management & Dues Tracker (Partial Payments)")
     col1, col2 = st.columns([1, 2])
 
     try:
@@ -368,21 +368,45 @@ elif choice == "Financial Billing":
             selected_student_text = st.selectbox("Select Student", list(student_options.keys()))
             sel_roll = student_options[selected_student_text]
 
-            amount = st.number_input("Amount (₹)", min_value=0.0, step=100.0)
             fee_type = st.selectbox("Fee Type", ["Monthly Tuition Fee", "Exam Fee", "Admission Fee", "Transport Fee"])
+            
+            # Naye fields partial payment track karne ke liye
+            total_due_amount = st.number_input("Total Fee Amount (Kul Kitna Dena Tha) ₹", min_value=0.0, step=100.0, value=2000.0)
+            amount_paid = st.number_input("Amount Paid Now (Abhi Kitna Diya) ₹", min_value=0.0, max_value=total_due_amount, step=100.0)
+            
+            # Auto calculate remaining balance
+            remaining_balance = total_due_amount - amount_paid
+            
+            # Live status screen par dikhane ke liye
+            if remaining_balance > 0:
+                st.warning(f"⚠️ Baki Fee (Due Balance): ₹{remaining_balance:,.2f}")
+            else:
+                st.success("✅ Full Payment Received! No Dues.")
 
             if st.button("Save Payment", type="primary"):
                 try:
                     current_date = datetime.date.today().strftime("%Y-%m-%d")
-                    supabase.table("billing").insert({"roll_no": sel_roll, "fee_type": fee_type, "amount": amount, "date": current_date}).execute()
+                    
+                    # Supabase me data insert (Naye columns ke sath)
+                    # Note: Apne Supabase database me total_amount, amount_paid aur remaining_balance columns add kar lena.
+                    supabase.table("billing").insert({
+                        "roll_no": sel_roll, 
+                        "fee_type": fee_type, 
+                        "total_amount": total_due_amount,
+                        "amount": amount_paid,  # 'amount' column me paid amount jayega
+                        "remaining_balance": remaining_balance,
+                        "date": current_date
+                    }).execute()
 
                     st.session_state["show_print_dialog"] = True
                     st.session_state["last_bill_roll"] = sel_roll
-                    st.session_state["last_bill_amount"] = amount
+                    st.session_state["last_bill_total"] = total_due_amount
+                    st.session_state["last_bill_paid"] = amount_paid
+                    st.session_state["last_bill_due"] = remaining_balance
                     st.session_state["last_bill_type"] = fee_type
                     st.session_state["last_bill_date"] = current_date
 
-                    st.success("Payment Logged & Saved in Cloud Database!")
+                    st.success("Payment Logged & Dues Tracked in Cloud Database!")
                     st.rerun()
                 except Exception as e:
                     st.error(f"Error saving bill: {e}")
@@ -403,14 +427,27 @@ elif choice == "Financial Billing":
                 st.rerun()
 
     with col2:
-        st.subheader("Billing & Transaction Ledger")
+        st.subheader("Billing & Transaction Ledger (Dues Statement)")
         try:
             b_res = supabase.table("billing").select("*").execute()
             if b_res.data and not students_list.empty:
                 df_b_raw = pd.DataFrame(b_res.data)
                 df_bill = pd.merge(df_b_raw, students_list, on="roll_no")
-                df_bill = df_bill.rename(columns={"bill_id": "Inv No", "name": "Student Name", "roll_no": "Roll No", "fee_type": "Fee Type", "amount": "Paid Amount", "date": "Date"})
-                st.dataframe(df_bill[["Inv No", "Student Name", "Roll No", "Fee Type", "Paid Amount", "Date"]], use_container_width=True)
+                
+                # Ledger Column formatting takki baki fees clear dikhe
+                df_bill = df_bill.rename(columns={
+                    "bill_id": "Inv No", 
+                    "name": "Student Name", 
+                    "roll_no": "Roll No", 
+                    "fee_type": "Fee Type", 
+                    "total_amount": "Total Fee (₹)",
+                    "amount": "Paid Amount (₹)", 
+                    "remaining_balance": "Baki Amount (Due ₹)",
+                    "date": "Date"
+                })
+                
+                # Table ko screen par display karna
+                st.dataframe(df_bill[["Inv No", "Student Name", "Roll No", "Fee Type", "Total Fee (₹)", "Paid Amount (₹)", "Baki Amount (Due ₹)", "Date"]], use_container_width=True)
             else:
                 st.info("No bills found.")
         except Exception as e:
@@ -421,11 +458,11 @@ elif choice == "Financial Billing":
         student_data = students_list[students_list["roll_no"] == s_roll].iloc[0]
 
         st.markdown("---")
-        st.subheader("🖨️ Printer Receipt Preview")
+        st.subheader("🖨️ Printer Receipt Preview (With Dues Status)")
 
         receipt_html = f"""
         <div id="printable-bill" style="padding:15px; border:2px dashed #333; max-width:350px; font-family:monospace; background-color:white; color:black; margin: 0 auto;">
-            <h2 style="text-align:center; margin:0;">janta secondary school billing system</h2>
+            <h2 style="text-align:center; margin:0;">JANTA SECONDARY SCHOOL</h2>
             <p style="text-align:center; margin:0 0 10px 0;">Official Fee Receipt</p>
             <hr style="border-top: 1px dashed #333;">
             <p><b>Date:</b> {st.session_state['last_bill_date']}</p>
@@ -435,10 +472,13 @@ elif choice == "Financial Billing":
             <hr style="border-top: 1px dashed #333;">
             <table style="width:100%; text-align:left;">
                 <tr><th>Description</th><th style="text-align:right;">Amount</th></tr>
-                <tr><td>{st.session_state['last_bill_type']}</td><td style="text-align:right;">₹{st.session_state['last_bill_amount']:.2f}</td></tr>
+                <tr><td>{st.session_state['last_bill_type']}</td><td style="text-align:right;">₹{st.session_state['last_bill_total']:.2f}</td></tr>
             </table>
             <hr style="border-top: 1px dashed #333;">
-            <h3 style="text-align:right; margin:0;">Total Paid: ₹{st.session_state['last_bill_amount']:.2f}</h3>
+            <p style="text-align:right; margin:2px 0;">Total Due: ₹{st.session_state['last_bill_total']:.2f}</p>
+            <p style="text-align:right; margin:2px 0; color: green;"><b>Amount Paid: ₹{st.session_state['last_bill_paid']:.2f}</b></p>
+            <p style="text-align:right; margin:2px 0; color: red;"><b>Remaining Due: ₹{st.session_state['last_bill_due']:.2f}</b></p>
+            <hr style="border-top: 1px dashed #333;">
             <p style="text-align:center; margin-top:20px; font-size:12px;">Thank You! Keep this receipt safe.</p>
         </div>
         <script>window.onload = function() {{ window.print(); }}</script>
