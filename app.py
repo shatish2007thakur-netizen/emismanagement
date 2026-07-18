@@ -26,6 +26,53 @@ st.set_page_config(
 st.title("🏢 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
 st.write("Complete Educational Management Suite with Advanced Analytics (Cloud Database).")
 
+
+# ==============================================================================
+# --- 🔐 STEP 2 & 3: ADMIN ACCESS CONTROL LOGIC ---
+# ==============================================================================
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+if "user_role" not in st.session_state:
+    st.session_state["user_role"] = "Guest"  # By default sabhi user 'Guest' honge
+
+st.sidebar.title("🔐 Access Control")
+
+if not st.session_state["logged_in"]:
+    login_type = st.sidebar.radio("Select View Mode", ["Public / Read-Only", "Admin Login"])
+    
+    if login_type == "Admin Login":
+        username = st.sidebar.text_input("Username")
+        password = st.sidebar.text_input("Password", type="password")
+        
+        if st.sidebar.button("Login as Admin"):
+            # Secrets se username aur password match karega
+            if "credentials" in st.secrets and username == st.secrets["credentials"]["admin_username"] and password == st.secrets["credentials"]["admin_password"]:
+                st.session_state["logged_in"] = True
+                st.session_state["user_role"] = "Admin"
+                st.sidebar.success("Welcome Back, Admin!")
+                st.rerun()
+            else:
+                st.sidebar.error("Invalid Username or Password! (Ya Secrets configure nahi hain)")
+    else:
+        st.sidebar.info("🌐 Status: Read-Only Mode (View Data Only)")
+else:
+    st.sidebar.write(f"Logged in as: **{st.session_state['user_role']}**")
+    if st.sidebar.button("Logout"):
+        st.session_state["logged_in"] = False
+        st.session_state["user_role"] = "Guest"
+        st.rerun()
+
+st.sidebar.markdown("---")
+
+# Helper function to check admin rights
+def is_admin():
+    if st.session_state["user_role"] == "Admin":
+        return True
+    else:
+        st.error("🛑 Access Denied: Sirf Admin hi data add, edit ya change kar sakta hai. Aap sirf view kar sakte hain.")
+        return False
+
+
 # --- SIDEBAR NAVIGATION ---
 menu = [
     "Dashboard Overview",
@@ -60,9 +107,7 @@ def calculate_grade(percentage):
 if choice == "Dashboard Overview":
     st.title("🏫 School Performance & Real-time Statistics")
     
-    # 1. Pehle data fetch karne ka try block
     try:
-        # Yahan aapka jo purana code tha data fetch karne ka (students, teachers count etc.)
         s_res = supabase.table("students").select("roll_no", count="exact").execute()
         total_students = s_res.count if s_res.count else 0
         
@@ -72,13 +117,12 @@ if choice == "Dashboard Overview":
         bill_res = supabase.table("billing").select("amount").execute()
         total_earnings = sum([float(row['amount']) for row in bill_res.data if row['amount'] is not None]) if bill_res.data else 0.0
         
-        present_today = total_students # Ya jo bhi aapka attendance logic ho
+        present_today = total_students
         
     except Exception as e:
         st.error(f"Dashboard Load Error: {e}")
         total_students, total_teachers, total_earnings, present_today = 0, 0, 0.0, 0
 
-    # 2. EXPENSES FETCH (Bilkul except ke barabar me straight aligned)
     total_expenses = 0.0
     try:
         exp_res = supabase.table("expenses").select("amount").execute()
@@ -89,7 +133,6 @@ if choice == "Dashboard Overview":
 
     net_balance = total_earnings - total_expenses
 
-    # 3. METRICS LAYOUT (Ek dam straight layout)
     st.markdown("### 📈 Real-time Key Metrics")
     m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
     
@@ -106,7 +149,6 @@ if choice == "Dashboard Overview":
 
     st.markdown("---")
 
-    # 4. EXPENSE TRACKER FORM & LEDGER
     st.subheader("📉 School Investment & Expense Tracker")
     exp_col1, exp_col2 = st.columns([1, 2])
 
@@ -125,17 +167,18 @@ if choice == "Dashboard Overview":
         exp_amount = st.number_input("Amount Invested/Spent (₹)", min_value=0.0, step=500.0, value=1000.0)
         
         if st.button("Log Expense", type="secondary", use_container_width=True):
-            try:
-                today_str = datetime.date.today().strftime("%Y-%m-%d")
-                supabase.table("expenses").insert({
-                    "purpose": exp_purpose,
-                    "amount": exp_amount,
-                    "date": today_str
-                }).execute()
-                st.success("Expense added successfully!")
-                st.rerun()
-            except Exception as e:
-                st.error(f"Failed to log expense: {e}")
+            if is_admin():  # 🔐 Admin Security Lock
+                try:
+                    today_str = datetime.date.today().strftime("%Y-%m-%d")
+                    supabase.table("expenses").insert({
+                        "purpose": exp_purpose,
+                        "amount": exp_amount,
+                        "date": today_str
+                    }).execute()
+                    st.success("Expense added successfully!")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Failed to log expense: {e}")
 
     with exp_col2:
         st.markdown("#### 📜 Recent Expense Ledger")
@@ -157,15 +200,12 @@ if choice == "Dashboard Overview":
 
     st.markdown("---")
 
-
-    # Analytics Section
     st.subheader("📊 Recent System Activity")
     col_left, col_right = st.columns(2)
 
     with col_left:
         st.write("**Top Performers List**")
         try:
-            # Fetch marks and student join handling via pandas
             marks_res = supabase.table("marks").select("roll_no, subject, marks_obtained, total_marks").execute()
             stud_res = supabase.table("students").select("roll_no, name").execute()
             
@@ -209,22 +249,26 @@ elif choice == "Student Profiles":
             section = st.selectbox("Section", ["Technical", "Education", "Science"])
             phone = st.text_input("Parent's Contact No.")
             
-            if st.form_submit_button("Save Student") and name and roll_no:
-                try:
-                    data_to_insert = {
-                        "name": str(name),
-                        "roll_no": str(roll_no),
-                        "student_class": str(student_class),
-                        "section": str(section),
-                        "phone": str(phone)
-                    }
-                    response = supabase.table("students").insert(data_to_insert).execute()
-                    if response.data and len(response.data) > 0:
-                        st.success(f"🎉 Student {name} registered in Cloud Successfully!")
+            if st.form_submit_button("Save Student"):
+                if is_admin():  # 🔐 Admin Security Lock
+                    if name and roll_no:
+                        try:
+                            data_to_insert = {
+                                "name": str(name),
+                                "roll_no": str(roll_no),
+                                "student_class": str(student_class),
+                                "section": str(section),
+                                "phone": str(phone)
+                            }
+                            response = supabase.table("students").insert(data_to_insert).execute()
+                            if response.data and len(response.data) > 0:
+                                st.success(f"🎉 Student {name} registered in Cloud Successfully!")
+                            else:
+                                st.error("⚠️ Data was not confirmed by Supabase.")
+                        except Exception as err:
+                            st.error(f"❌ Database Error: {err}")
                     else:
-                        st.error("⚠️ Data was not confirmed by Supabase.")
-                except Exception as err:
-                    st.error(f"❌ Database Error: {err}")
+                        st.warning("Please enter both Name and Roll No.")
     with tab2:
         try:
             res = supabase.table("students").select("*").execute()
@@ -245,12 +289,16 @@ elif choice == "Teacher Directory":
             t_sub = st.text_input("Subject")
             t_phone = st.text_input("Phone")
             t_email = st.text_input("Email")
-            if st.form_submit_button("Add Teacher") and t_name:
-                try:
-                    supabase.table("teachers").insert({"name": t_name, "subject": t_sub, "phone": t_phone, "email": t_email}).execute()
-                    st.success("Teacher added successfully!")
-                except Exception as e:
-                    st.error(f"Cloud Error: {e}")
+            if st.form_submit_button("Add Teacher"):
+                if is_admin():  # 🔐 Admin Security Lock
+                    if t_name:
+                        try:
+                            supabase.table("teachers").insert({"name": t_name, "subject": t_sub, "phone": t_phone, "email": t_email}).execute()
+                            st.success("Teacher added successfully!")
+                        except Exception as e:
+                            st.error(f"Cloud Error: {e}")
+                    else:
+                        st.warning("Please enter Teacher Name.")
     with tab2:
         try:
             res = supabase.table("teachers").select("*").execute()
@@ -286,15 +334,16 @@ elif choice == "Smart Attendance":
                 attendance_dict[row["roll_no"]] = status
 
         if st.button("Save & Update Attendance", type="primary"):
-            try:
-                for roll, stat in attendance_dict.items():
-                    supabase.table("attendance").upsert(
-                        {"roll_no": roll, "date": att_date, "status": stat},
-                        on_conflict="roll_no,date"
-                    ).execute()
-                st.success(f"Attendance for {att_date} auto-saved successfully!")
-            except Exception as e:
-                st.error(f"Error saving attendance: {e}")
+            if is_admin():  # 🔐 Admin Security Lock
+                try:
+                    for roll, stat in attendance_dict.items():
+                        supabase.table("attendance").upsert(
+                            {"roll_no": roll, "date": att_date, "status": stat},
+                            on_conflict="roll_no,date"
+                        ).execute()
+                    st.success(f"Attendance for {att_date} auto-saved successfully!")
+                except Exception as e:
+                    st.error(f"Error saving attendance: {e}")
     else:
         st.info("No students registered yet.")
 
@@ -324,14 +373,15 @@ elif choice == "Academic Ledger (Marks)":
                 total_marks = st.number_input("Total Marks", min_value=10.0, max_value=100.0, value=100.0)
 
             if st.button("Submit Marks"):
-                try:
-                    supabase.table("marks").insert({
-                        "roll_no": selected_roll, "subject": subject, 
-                        "exam_term": exam_term, "marks_obtained": marks_obtained, "total_marks": total_marks
-                    }).execute()
-                    st.success("Marks saved online!")
-                except Exception as e:
-                    st.error(f"Error: {e}")
+                if is_admin():  # 🔐 Admin Security Lock
+                    try:
+                        supabase.table("marks").insert({
+                            "roll_no": selected_roll, "subject": subject, 
+                            "exam_term": exam_term, "marks_obtained": marks_obtained, "total_marks": total_marks
+                        }).execute()
+                        st.success("Marks saved online!")
+                    except Exception as e:
+                        st.error(f"Error: {e}")
         else:
             st.warning("Add students first.")
 
@@ -383,12 +433,13 @@ elif choice == "Library Management":
             issue_date = st.date_input("Issue Date", datetime.date.today()).strftime("%Y-%m-%d")
 
             if st.button("Issue Book Now"):
-                if book_name:
-                    try:
-                        supabase.table("library").insert({"roll_no": sel_roll, "book_name": book_name, "issue_date": issue_date, "status": "Issued"}).execute()
-                        st.success(f"'{book_name}' has been issued successfully!")
-                    except Exception as e:
-                        st.error(f"Error: {e}")
+                if is_admin():  # 🔐 Admin Security Lock
+                    if book_name:
+                        try:
+                            supabase.table("library").insert({"roll_no": sel_roll, "book_name": book_name, "issue_date": issue_date, "status": "Issued"}).execute()
+                            st.success(f"'{book_name}' has been issued successfully!")
+                        except Exception as e:
+                            st.error(f"Error: {e}")
         else:
             st.warning("No students available.")
 
@@ -410,12 +461,13 @@ elif choice == "Library Management":
             st.subheader("Mark Book Return")
             issue_id_to_return = st.number_input("Enter Issue ID to mark as Returned", min_value=1, step=1)
             if st.button("Confirm Return", type="primary"):
-                try:
-                    supabase.table("library").update({"status": "Returned"}).eq("issue_id", int(issue_id_to_return)).execute()
-                    st.success(f"Issue ID {issue_id_to_return} updated to Returned!")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Error updating status: {e}")
+                if is_admin():  # 🔐 Admin Security Lock
+                    try:
+                        supabase.table("library").update({"status": "Returned"}).eq("issue_id", int(issue_id_to_return)).execute()
+                        st.success(f"Issue ID {issue_id_to_return} updated to Returned!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error updating status: {e}")
         else:
             st.info("Library transaction log is empty.")
 
@@ -424,7 +476,6 @@ elif choice == "Financial Billing":
     st.header("💰 Fee Management & Smart Dues Tracker")
     col1, col2 = st.columns([1, 2])
 
-    # --- DYNAMIC FEE RATES DICTIONARY ---
     fee_rates = {
         "Monthly Tuition Fee": 1000.0,
         "Exam Fee": 350.0,
@@ -452,10 +503,8 @@ elif choice == "Financial Billing":
             selected_student_text = st.selectbox("Select Student", list(student_options.keys()))
             sel_roll = student_options[selected_student_text]
 
-            # --- DYNAMICALLY FETCH LATEST REMAINING BALANCE ---
             previous_dues = 0.0
             try:
-                # Naye SDK me '.order("column", desc=True)' se crash nahi hota
                 past_bills_res = supabase.table("billing")\
                     .select("remaining_balance")\
                     .eq("roll_no", sel_roll)\
@@ -468,7 +517,6 @@ elif choice == "Financial Billing":
             except Exception as e:
                 st.error(f"Error fetching past dues: {e}")
 
-            # Pichla baki dikhane ke liye alert box
             if previous_dues > 0:
                 st.error(f"🛑 Pichla Baki Amount (Previous Outstanding Dues): ₹{previous_dues:,.2f}")
             else:
@@ -476,22 +524,14 @@ elif choice == "Financial Billing":
 
             st.markdown("---")
             
-            # Fee Dropdown selection
             fee_type = st.selectbox("Fee Type", list(fee_rates.keys()))
-            
-            # Automatically fetch the default rate based on selection
             default_rate = fee_rates[fee_type]
-            
-            # Dynamic Input Box (Jo select karoge, uska rate yahan automatic load hoga)
             current_fee_amount = st.number_input("Current Fee Amount (Is Baar Ki Fee) ₹", min_value=0.0, step=50.0, value=default_rate)
             
-            # AUTOMATICALLY ADD PREVIOUS DUES TO TOTAL
             total_payable = current_fee_amount + previous_dues
             st.markdown(f"### 📋 Total Payable: **₹{total_payable:,.2f}** *(Current + Pichla Baki)*")
             
             amount_paid = st.number_input("Amount Paid Now (Abhi Kitna Diya) ₹", min_value=0.0, max_value=total_payable, step=50.0)
-            
-            # New Remaining Balance Calculation
             new_remaining_balance = total_payable - amount_paid
             
             if new_remaining_balance > 0:
@@ -500,33 +540,33 @@ elif choice == "Financial Billing":
                 st.success("✅ Account Cleared! Zero Dues.")
 
             if st.button("Save Payment", type="primary"):
-                try:
-                    current_date = datetime.date.today().strftime("%Y-%m-%d")
-                    
-                    # Supabase me entry save karna
-                    supabase.table("billing").insert({
-                        "roll_no": sel_roll, 
-                        "fee_type": f"{fee_type} (+ Dues)" if previous_dues > 0 else fee_type, 
-                        "total_amount": total_payable,
-                        "amount": amount_paid, 
-                        "remaining_balance": new_remaining_balance,
-                        "date": current_date
-                    }).execute()
+                if is_admin():  # 🔐 Admin Security Lock
+                    try:
+                        current_date = datetime.date.today().strftime("%Y-%m-%d")
+                        
+                        supabase.table("billing").insert({
+                            "roll_no": sel_roll, 
+                            "fee_type": f"{fee_type} (+ Dues)" if previous_dues > 0 else fee_type, 
+                            "total_amount": total_payable,
+                            "amount": amount_paid, 
+                            "remaining_balance": new_remaining_balance,
+                            "date": current_date
+                        }).execute()
 
-                    st.session_state["show_print_dialog"] = True
-                    st.session_state["last_bill_roll"] = sel_roll
-                    st.session_state["last_bill_prev_dues"] = previous_dues
-                    st.session_state["last_bill_current"] = current_fee_amount
-                    st.session_state["last_bill_total"] = total_payable
-                    st.session_state["last_bill_paid"] = amount_paid
-                    st.session_state["last_bill_due"] = new_remaining_balance
-                    st.session_state["last_bill_type"] = fee_type
-                    st.session_state["last_bill_date"] = current_date
+                        st.session_state["show_print_dialog"] = True
+                        st.session_state["last_bill_roll"] = sel_roll
+                        st.session_state["last_bill_prev_dues"] = previous_dues
+                        st.session_state["last_bill_current"] = current_fee_amount
+                        st.session_state["last_bill_total"] = total_payable
+                        st.session_state["last_bill_paid"] = amount_paid
+                        st.session_state["last_bill_due"] = new_remaining_balance
+                        st.session_state["last_bill_type"] = fee_type
+                        st.session_state["last_bill_date"] = current_date
 
-                    st.success("Payment Logged & Dues Rolled Over Successfully!")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Error saving bill: {e}")
+                        st.success("Payment Logged & Dues Rolled Over Successfully!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error saving bill: {e}")
         else:
             st.warning("Pehle Student Profiles tab me jaakar student add karein.")
 
