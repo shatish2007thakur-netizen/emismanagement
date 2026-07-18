@@ -83,7 +83,7 @@ menu = [
     "Library Management",
     "Financial Billing",
 ]
-choice = st.sidebar.selectbox("EMIS Modules", menu)
+choice = st.sidebar.radio("EMIS Modules", menu)
 
 
 # Helper function for GPA and Division
