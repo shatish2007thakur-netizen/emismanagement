@@ -4,10 +4,10 @@ import streamlit as st
 from supabase import create_client, Client
 
 # ==============================================================================
-# --- SUPABASE CONFIGURATION (Yahan Apni Details Dalein) ---
+# --- SUPABASE CONFIGURATION (Now Fully Secured via Secrets) ---
 # ==============================================================================
-SUPABASE_URL = "https://ipexxlqbstykztrbyevd.supabase.co"  # <-- Apni URL yahan paste karein
-SUPABASE_KEY = "sb_secret_s1c9OJdQYdFYs31ldljB_g_zNc3SPpa"    # <-- Apni Key yahan paste karein
+SUPABASE_URL = st.secrets["supabase_url"]
+SUPABASE_KEY = st.secrets["supabase_key"]
 
 @st.cache_resource
 def get_supabase_client() -> Client:
