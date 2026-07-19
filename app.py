@@ -768,3 +768,72 @@ elif choice == "Financial Billing":
         """
         st.components.v1.html(receipt_html, height=450, scrolling=True)
         st.session_state["trigger_print_layout"] = False
+
+        # --- FINANCIAL BILLING (STAFF & TEACHER SALARY SECTION) ---
+elif choice == "Financial Billing":
+    st.header("💳 Financial Billing & Payroll Management")
+    
+    billing_tab1, billing_tab2 = st.tabs(["💵 Process Salary", "📊 Salary Ledger & Reports"])
+    
+    with billing_tab1:
+        st.subheader("💰 Calculate & Disburse Monthly Salary")
+        
+        # Select Month and Category
+        col_m1, col_m2 = st.columns(2)
+        with col_m1:
+            salary_month = st.selectbox("Select Month", ["Baisakh", "Jestha", "Asar", "Shrawan", "Bhadhu", "Ashwin", "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra"])
+            year = "2026"
+            month_year_str = f"{salary_month}-{year}"
+        with col_m2:
+            staff_category = st.selectbox("Staff Type", ["Teaching Staff", "Non-Teaching Staff", "Support Staff"])
+            
+        # Example fetching logic based on type
+        if staff_category == "Teaching Staff":
+            try:
+                res = supabase.table("teachers").select("teacher_id", "name").execute()
+                staff_list = res.data if res.data else []
+            except Exception as e:
+                staff_list = []
+                st.error(f"Error fetching: {e}")
+                
+        if staff_list:
+            st.markdown("---")
+            for person in staff_list:
+                p_id = person.get("teacher_id") or person.get("staff_id")
+                p_name = person["name"]
+                
+                st.write(f"👤 **{p_name}** (ID: {p_id})")
+                c1, c2, c3 = st.columns(3)
+                
+                with c1:
+                    base_pay = st.number_input(f"Basic Pay", min_value=0, key=f"bp_{p_id}")
+                with c2:
+                    allowance = st.number_input(f"Allowances (HRA/DA)", min_value=0, key=f"al_{p_id}")
+                with c3:
+                    deduction = st.number_input(f"Deductions (PF/Tax)", min_value=0, key=f"dd_{p_id}")
+                    
+                net_total = base_pay + allowance - deduction
+                st.info(f"💵 Net In-Hand Salary: **₹{net_total}**")
+                
+                if st.button(f"💸 Release Salary for {p_name}", key=f"btn_{p_id}"):
+                    if is_admin():
+                        try:
+                            supabase.table("staff_salary").upsert({
+                                "staff_id": str(p_id),
+                                "staff_name": p_name,
+                                "staff_type": staff_category,
+                                "month_year": month_year_str,
+                                "basic_salary": base_pay,
+                                "allowances": allowance,
+                                "deductions": deduction,
+                                "status": "Paid",
+                                "payment_date": datetime.date.today().strftime("%Y-%m-%d")
+                            }, on_conflict="staff_id,month_year").execute()
+                            st.success(f"✅ Salary successfully credited to {p_name} for {month_year_str}!")
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+                st.markdown("---")
+        else:
+            st.info("No records found for the selected category.")
+
+
