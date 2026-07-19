@@ -827,7 +827,7 @@ elif choice == "Financial Billing":
                     with c2:
                         allowance = st.number_input(f"Allowances (HRA/DA) (₹)", min_value=0.0, step=100.0, key=f"al_{p_id}_{staff_category}")
                     with c3:
-                        deductions = st.number_input(f"Deductions (PF/Tax) (₹)", min_value=0.0, step=100.0, key=f"dd_{p_id}_{staff_category}")
+                        deductions = base_pay*0.01
                         
                     net_total = base_pay + allowance - deductions
                     st.info(f"💵 Net In-Hand Salary: **₹{net_total:,.2f}**")
