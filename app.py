@@ -307,45 +307,181 @@ elif choice == "Teacher Directory":
         except Exception as e:
             st.error(f"Error: {e}")
 
-# --- 4. SMART ATTENDANCE ---
+# --- 4. SMART ATTENDANCE (ADVANCED: STUDENT & TEACHER + PAST LOGS) ---
 elif choice == "Smart Attendance":
-    st.header("📝 Smart Attendance Tracker")
-    att_date = st.date_input("Attendance Date", datetime.date.today()).strftime("%Y-%m-%d")
-
-    st.subheader(f"Mark Attendance for Date: {att_date}")
-    try:
-        res = supabase.table("students").select("roll_no", "name", "student_class").execute()
-        df_students = pd.DataFrame(res.data) if res.data else pd.DataFrame()
-    except Exception as e:
-        df_students = pd.DataFrame()
-        st.error(f"Error fetching students: {e}")
-
-    if not df_students.empty:
-        attendance_dict = {}
-        for index, row in df_students.iterrows():
-            col_a, col_b = st.columns([3, 1])
-            with col_a:
-                st.write(f"**Roll No: {row['roll_no']}** | {row['name']} (Class: {row['student_class']})")
-            with col_b:
-                status = st.radio(
-                    "Status", ["Present", "Absent"],
-                    key=f"att_{row['roll_no']}_{att_date}", horizontal=True,
-                )
-                attendance_dict[row["roll_no"]] = status
-
-        if st.button("Save & Update Attendance", type="primary"):
-            if is_admin():  # 🔐 Admin Security Lock
+    st.header("📝 Advanced Smart Attendance System")
+    
+    # Do alag bada tabs: Ek dynamic Attendance lene ke liye aur ek purana records dekhne ke liye
+    main_tab1, main_tab2 = st.tabs(["🎯 Mark Current Attendance", "📊 View Past Attendance Logs"])
+    
+    with main_tab1:
+        # Attendance type selector (Student vs Teacher)
+        attendance_target = st.radio("Select Target", ["Students", "Teachers"], horizontal=True)
+        att_date = st.date_input("Attendance Date", datetime.date.today(), key="mark_date").strftime("%Y-%m-%d")
+        
+        st.markdown(f"### ✏️ Marking Attendance for: **{attendance_target}** ({att_date})")
+        
+        if attendance_target == "Students":
+            # --- STUDENT ATTENDANCE SECTION ---
+            try:
+                # Filter ke liye saari classes le kar aate hain
+                class_res = supabase.table("students").select("student_class").execute()
+                if class_res.data:
+                    available_classes = sorted(list(set([row['student_class'] for row in class_res.data])))
+                else:
+                    available_classes = []
+            except:
+                available_classes = []
+            
+            if available_classes:
+                # Class select karne ka advance option
+                selected_class = st.selectbox("🔍 Filter by Class to Mark Attendance", available_classes)
+                
                 try:
-                    for roll, stat in attendance_dict.items():
-                        supabase.table("attendance").upsert(
-                            {"roll_no": roll, "date": att_date, "status": stat},
-                            on_conflict="roll_no,date"
-                        ).execute()
-                    st.success(f"Attendance for {att_date} auto-saved successfully!")
+                    # Sirf selected class ke students fetch honge
+                    res = supabase.table("students").select("roll_no", "name", "student_class").eq("student_class", selected_class).execute()
+                    df_students = pd.DataFrame(res.data) if res.data else pd.DataFrame()
                 except Exception as e:
-                    st.error(f"Error saving attendance: {e}")
-    else:
-        st.info("No students registered yet.")
+                    df_students = pd.DataFrame()
+                    st.error(f"Error fetching students: {e}")
+                
+                if not df_students.empty:
+                    attendance_dict = {}
+                    st.markdown("---")
+                    
+                    # Quick select all shortcut buttons
+                    c_all1, c_all2 = st.columns(2)
+                    
+                    for index, row in df_students.iterrows():
+                        col_a, col_b = st.columns([3, 1])
+                        with col_a:
+                            st.write(f"🔢 **Roll No: {row['roll_no']}** | 👤 {row['name']} (Class: {row['student_class']})")
+                        with col_b:
+                            status = st.radio(
+                                "Status", ["Present", "Absent"],
+                                key=f"att_stud_{row['roll_no']}_{att_date}", horizontal=True,
+                            )
+                            attendance_dict[row["roll_no"]] = status
+                    
+                    st.markdown("---")
+                    if st.button("💾 Save Student Attendance", type="primary", use_container_width=True):
+                        if is_admin():  # 🔐 Admin Security Lock
+                            try:
+                                for roll, stat in attendance_dict.items():
+                                    supabase.table("attendance").upsert(
+                                        {"roll_no": roll, "date": att_date, "status": stat},
+                                        on_conflict="roll_no,date"
+                                    ).execute()
+                                st.success(f"🎉 Class {selected_class} attendance for {att_date} saved successfully!")
+                            except Exception as e:
+                                st.error(f"Error saving student attendance: {e}")
+                else:
+                    st.info(f"Class {selected_class} me koi student registered nahi hai.")
+            else:
+                st.info("Pehle Student Profiles me jaakar students add karein.")
+                
+        else:
+            # --- TEACHER ATTENDANCE SECTION ---
+            try:
+                t_res = supabase.table("teachers").select("teacher_id", "name", "subject").execute()
+                df_teachers = pd.DataFrame(t_res.data) if t_res.data else pd.DataFrame()
+            except Exception as e:
+                df_teachers = pd.DataFrame()
+                st.error(f"Error fetching teachers: {e}")
+                
+            if not df_teachers.empty:
+                teacher_att_dict = {}
+                st.markdown("---")
+                
+                for index, row in df_teachers.iterrows():
+                    col_a, col_b = st.columns([3, 1])
+                    with col_a:
+                        st.write(f"🆔 **ID: {row['teacher_id']}** | 👨‍🏫 {row['name']} ({row['subject']})")
+                    with col_b:
+                        t_status = st.radio(
+                            "Status", ["Present", "Absent"],
+                            key=f"att_teach_{row['teacher_id']}_{att_date}", horizontal=True,
+                        )
+                        teacher_att_dict[row["teacher_id"]] = t_status
+                        
+                st.markdown("---")
+                if st.button("💾 Save Teacher Attendance", type="primary", use_container_width=True):
+                    if is_admin():  # 🔐 Admin Security Lock
+                        try:
+                            for t_id, stat in teacher_att_dict.items():
+                                # Make sure aapke Supabase database me 'teacher_attendance' naam ki table bani ho
+                                supabase.table("teacher_attendance").upsert(
+                                    {"teacher_id": t_id, "date": att_date, "status": stat},
+                                    on_conflict="teacher_id,date"
+                                ).execute()
+                            st.success(f"🎉 Teachers attendance for {att_date} saved successfully!")
+                        except Exception as e:
+                            st.error(f"Error saving teacher attendance: {e} (Make sure 'teacher_attendance' table exists in Supabase)")
+            else:
+                st.info("Pehle Teacher Directory me jaakar teachers register karein.")
+                
+    with main_tab2:
+        # --- PAST ATTENDANCE LOGS VIEW ---
+        st.subheader("🔍 Search Historical Attendance Records")
+        
+        view_target = st.selectbox("Select Record Type", ["Students Records", "Teachers Records"])
+        view_date = st.date_input("Select Date to View Logs", datetime.date.today(), key="view_date_picker").strftime("%Y-%m-%d")
+        
+        if view_target == "Students Records":
+            try:
+                # Past student data fetch aur merge
+                past_att_res = supabase.table("attendance").select("roll_no, status").eq("date", view_date).execute()
+                all_stud_res = supabase.table("students").select("roll_no", "name", "student_class", "section").execute()
+                
+                if all_stud_res.data:
+                    df_all_s = pd.DataFrame(all_stud_res.data)
+                    if past_att_res.data:
+                        df_past_a = pd.DataFrame(past_att_res.data)
+                        df_report = pd.merge(df_all_s, df_past_a, on="roll_no", how="left")
+                        df_report["status"] = df_report["status"].fillna("Not Marked")
+                    else:
+                        df_report = df_all_s.copy()
+                        df_report["status"] = "Not Marked"
+                        
+                    df_report = df_report.rename(columns={
+                        "roll_no": "Roll No", "name": "Student Name", 
+                        "student_class": "Class", "section": "Section", "status": "Attendance Status"
+                    })
+                    
+                    st.markdown(f"#### 📅 Attendance Sheet for Date: **{view_date}**")
+                    st.dataframe(df_report[["Roll No", "Student Name", "Class", "Section", "Attendance Status"]], use_container_width=True, hide_index=True)
+                else:
+                    st.info("No student records available.")
+            except Exception as e:
+                st.error(f"Error loading student logs: {e}")
+                
+        else:
+            try:
+                # Past teacher data fetch aur merge
+                past_t_att = supabase.table("teacher_attendance").select("teacher_id, status").eq("date", view_date).execute()
+                all_t_res = supabase.table("teachers").select("teacher_id", "name", "subject").execute()
+                
+                if all_t_res.data:
+                    df_all_t = pd.DataFrame(all_t_res.data)
+                    if past_t_att.data:
+                        df_past_t = pd.DataFrame(past_t_att.data)
+                        df_t_report = pd.merge(df_all_t, df_past_t, on="teacher_id", how="left")
+                        df_t_report["status"] = df_t_report["status"].fillna("Not Marked")
+                    else:
+                        df_t_report = df_all_t.copy()
+                        df_t_report["status"] = "Not Marked"
+                        
+                    df_t_report = df_t_report.rename(columns={
+                        "teacher_id": "Teacher ID", "name": "Teacher Name", 
+                        "subject": "Subject/Department", "status": "Attendance Status"
+                    })
+                    
+                    st.markdown(f"#### 📅 Teacher Attendance Sheet for Date: **{view_date}**")
+                    st.dataframe(df_t_report[["Teacher ID", "Teacher Name", "Subject/Department", "Attendance Status"]], use_container_width=True, hide_index=True)
+                else:
+                    st.info("No teacher records available.")
+            except Exception as e:
+                st.error(f"Error loading teacher logs: {e} (Ensure 'teacher_attendance' table exists)")
 
 # --- 5. ACADEMIC LEDGER ---
 elif choice == "Academic Ledger (Marks)":
