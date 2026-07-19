@@ -455,16 +455,21 @@ elif choice == "Smart Attendance":
             except Exception as e:
                 st.error(f"Error loading student logs: {e}")
                 
-        else:
+else:
             try:
                 # Past teacher data fetch aur merge
-                past_t_att = supabase.table("teacher_attendance").select("teacher_id, status").eq("date", view_date).execute()
+                past_t_att = supabase.table("teacher_attendance").select("teacher_id", "status").eq("date", view_date).execute()
                 all_t_res = supabase.table("teachers").select("teacher_id", "name", "subject").execute()
                 
                 if all_t_res.data:
                     df_all_t = pd.DataFrame(all_t_res.data)
+                    # Dono cases ke liye pehle hi data type fix kar dete hain
+                    df_all_t["teacher_id"] = df_all_t["teacher_id"].astype(str)
+                    
                     if past_t_att.data:
                         df_past_t = pd.DataFrame(past_t_att.data)
+                        df_past_t["teacher_id"] = df_past_t["teacher_id"].astype(str)
+                        
                         df_t_report = pd.merge(df_all_t, df_past_t, on="teacher_id", how="left")
                         df_t_report["status"] = df_t_report["status"].fillna("Not Marked")
                     else:
@@ -481,7 +486,7 @@ elif choice == "Smart Attendance":
                 else:
                     st.info("No teacher records available.")
             except Exception as e:
-                st.error(f"Error loading teacher logs: {e} (Ensure 'teacher_attendance' table exists)")
+                st.error(f"Error loading teacher logs: {e}")
 
 # --- 5. ACADEMIC LEDGER ---
 elif choice == "Academic Ledger (Marks)":
