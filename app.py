@@ -311,7 +311,7 @@ elif choice == "Teacher Directory":
 elif choice == "Smart Attendance":
     st.header("📝 Advanced Smart Attendance System")
     
-    # Do alag bada tabs: Ek dynamic Attendance lene ke liye aur ek purana records dekhne ke liye
+    # Do alag bada tabs
     main_tab1, main_tab2 = st.tabs(["🎯 Mark Current Attendance", "📊 View Past Attendance Logs"])
     
     with main_tab1:
@@ -324,7 +324,6 @@ elif choice == "Smart Attendance":
         if attendance_target == "Students":
             # --- STUDENT ATTENDANCE SECTION ---
             try:
-                # Filter ke liye saari classes le kar aate hain
                 class_res = supabase.table("students").select("student_class").execute()
                 if class_res.data:
                     available_classes = sorted(list(set([row['student_class'] for row in class_res.data])))
@@ -334,11 +333,9 @@ elif choice == "Smart Attendance":
                 available_classes = []
             
             if available_classes:
-                # Class select karne ka advance option
                 selected_class = st.selectbox("🔍 Filter by Class to Mark Attendance", available_classes)
                 
                 try:
-                    # Sirf selected class ke students fetch honge
                     res = supabase.table("students").select("roll_no", "name", "student_class").eq("student_class", selected_class).execute()
                     df_students = pd.DataFrame(res.data) if res.data else pd.DataFrame()
                 except Exception as e:
@@ -348,9 +345,6 @@ elif choice == "Smart Attendance":
                 if not df_students.empty:
                     attendance_dict = {}
                     st.markdown("---")
-                    
-                    # Quick select all shortcut buttons
-                    c_all1, c_all2 = st.columns(2)
                     
                     for index, row in df_students.iterrows():
                         col_a, col_b = st.columns([3, 1])
@@ -365,14 +359,14 @@ elif choice == "Smart Attendance":
                     
                     st.markdown("---")
                     if st.button("💾 Save Student Attendance", type="primary", use_container_width=True):
-                        if is_admin():  # 🔐 Admin Security Lock
+                        if is_admin():
                             try:
                                 for roll, stat in attendance_dict.items():
                                     supabase.table("attendance").upsert(
                                         {"roll_no": roll, "date": att_date, "status": stat},
                                         on_conflict="roll_no,date"
                                     ).execute()
-                                st.success(f"🎉 Class {selected_class} attendance for {att_date} saved successfully!")
+                                st.success(f"🎉 Class {selected_class} attendance saved successfully!")
                             except Exception as e:
                                 st.error(f"Error saving student attendance: {e}")
                 else:
@@ -406,17 +400,16 @@ elif choice == "Smart Attendance":
                         
                 st.markdown("---")
                 if st.button("💾 Save Teacher Attendance", type="primary", use_container_width=True):
-                    if is_admin():  # 🔐 Admin Security Lock
+                    if is_admin():
                         try:
                             for t_id, stat in teacher_att_dict.items():
-                                # Make sure aapke Supabase database me 'teacher_attendance' naam ki table bani ho
                                 supabase.table("teacher_attendance").upsert(
                                     {"teacher_id": t_id, "date": att_date, "status": stat},
                                     on_conflict="teacher_id,date"
                                 ).execute()
-                            st.success(f"🎉 Teachers attendance for {att_date} saved successfully!")
+                            st.success(f"🎉 Teachers attendance saved successfully!")
                         except Exception as e:
-                            st.error(f"Error saving teacher attendance: {e} (Make sure 'teacher_attendance' table exists in Supabase)")
+                            st.error(f"Error saving teacher attendance: {e}")
             else:
                 st.info("Pehle Teacher Directory me jaakar teachers register karein.")
                 
@@ -429,7 +422,6 @@ elif choice == "Smart Attendance":
         
         if view_target == "Students Records":
             try:
-                # Past student data fetch aur merge
                 past_att_res = supabase.table("attendance").select("roll_no, status").eq("date", view_date).execute()
                 all_stud_res = supabase.table("students").select("roll_no", "name", "student_class", "section").execute()
                 
@@ -455,15 +447,13 @@ elif choice == "Smart Attendance":
             except Exception as e:
                 st.error(f"Error loading student logs: {e}")
                 
-else:
+        else:
             try:
-                # Past teacher data fetch aur merge
                 past_t_att = supabase.table("teacher_attendance").select("teacher_id", "status").eq("date", view_date).execute()
                 all_t_res = supabase.table("teachers").select("teacher_id", "name", "subject").execute()
                 
                 if all_t_res.data:
                     df_all_t = pd.DataFrame(all_t_res.data)
-                    # Dono cases ke liye pehle hi data type fix kar dete hain
                     df_all_t["teacher_id"] = df_all_t["teacher_id"].astype(str)
                     
                     if past_t_att.data:
