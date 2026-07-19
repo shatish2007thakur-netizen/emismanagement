@@ -779,7 +779,7 @@ elif choice == "Financial Billing":
             except Exception as e:
                 st.error(f"Error rendering print preview: {e}")
 
-    # ==================== SUB-TAB 2: STAFF & TEACHER SALARY ====================
+# ==================== SUB-TAB 2: STAFF & TEACHER SALARY ====================
     with billing_main_tab2:
         payroll_sub_tab1, payroll_sub_tab2 = st.tabs(["💵 Process Salary", "📊 Salary Ledger & Reports"])
         
@@ -800,17 +800,14 @@ elif choice == "Financial Billing":
             if staff_category == "Teaching Staff":
                 try:
                     res = supabase.table("teachers").select("teacher_id", "name").execute()
-                    # map keys to match a standard dictionary shape inside our UI loop
                     staff_list = [{"id": row.get("teacher_id"), "name": row.get("name")} for row in res.data] if res.data else []
                 except Exception as e:
                     st.error(f"Error fetching teachers: {e}")
             else:
-                # Fetches from common non-teaching tables if you implement one, otherwise fallbacks safely
                 try:
                     res = supabase.table("staff").select("staff_id", "name").eq("type", staff_category).execute()
                     staff_list = [{"id": row.get("staff_id"), "name": row.get("name")} for row in res.data] if res.data else []
                 except Exception as e:
-                    # Generic fallback array if Supabase table isn't generated yet
                     staff_list = []
                     
             if staff_list:
@@ -824,13 +821,36 @@ elif choice == "Financial Billing":
                     
                     with c1:
                         base_pay = st.number_input(f"Basic Pay (₹)", min_value=0.0, step=500.0, key=f"bp_{p_id}_{staff_category}")
+                    
                     with c2:
-                        allowance = st.number_input(f"Allowances (HRA/DA) (₹)", min_value=0.0, step=100.0, key=f"al_{p_id}_{staff_category}")
-                    with c3:
-                       deductions = ((base_pay+allowance)*0.01)
+                        # Fixed Allowance checkbox option (Auto-calculates ₹8000)
+                        include_allowance = st.checkbox("Include Allowance (₹8,000)", value=False, key=f"al_check_{p_id}_{staff_category}")
+                        allowance = 8000.0 if include_allowance else 0.0
                         
-                    net_total = base_pay + allowance - deductions
-                    st.info(f"💵 Net In-Hand Salary: **₹{net_total:,.2f}**")
+                    # Calculate Gross amount before applying tax percentage
+                    gross_amount = base_pay + allowance
+                    
+                    with c3:
+                        # Tax rates selectbox dynamically calculated based on Basic Pay + Allowance
+                        tax_rate_label = st.selectbox(
+                            "Select Tax Rate", 
+                            ["0% (No Tax)", "1% (Social Security)", "5% (TDS)", "10% (Income Tax)", "15% (Higher Bracket)"], 
+                            key=f"tax_{p_id}_{staff_category}"
+                        )
+                        
+                        # Extract percentage value from selection
+                        tax_percent = 0.0
+                        if "1%" in tax_rate_label: tax_percent = 0.01
+                        elif "5%" in tax_rate_label: tax_percent = 0.05
+                        elif "10%" in tax_rate_label: tax_percent = 0.10
+                        elif "15%" in tax_rate_label: tax_percent = 0.15
+                        
+                        deductions = gross_amount * tax_percent
+                        if deductions > 0:
+                            st.caption(f"📉 Calculated Tax: ₹{deductions:,.2f}")
+                        
+                    net_total = gross_amount - deductions
+                    st.info(f"💵 Net In-Hand Salary: **₹{net_total:,.2f}** *(Gross: ₹{gross_amount:,.2f} | Tax Deducted: ₹{deductions:,.2f})*")
                     
                     if st.button(f"💸 Release Salary for {p_name}", key=f"btn_{p_id}_{staff_category}"):
                         if is_admin():
@@ -859,7 +879,6 @@ elif choice == "Financial Billing":
                 sal_res = supabase.table("staff_salary").select("*").execute()
                 if sal_res.data:
                     df_sal = pd.DataFrame(sal_res.data)
-                    # Cleaning up column visuals for presentation
                     df_sal = df_sal.rename(columns={
                         "salary_id": "Tx ID",
                         "staff_id": "Staff ID",
