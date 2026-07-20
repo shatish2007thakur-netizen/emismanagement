@@ -817,41 +817,68 @@ elif choice == "Financial Billing":
                     p_name = person["name"]
                     
                     st.markdown(f"👤 **{p_name}** *(ID: {p_id})*")
+                    
+                    # Layout setup with multiple columns for neat structure
                     c1, c2, c3 = st.columns(3)
                     
                     with c1:
-                        # Default value changed from 0.0 to 58972.00 as requested
+                        # Default Basic Pay set to 58972.00
                         base_pay = st.number_input(f"Basic Pay (₹)", min_value=0.0, step=500.0, value=58972.00, key=f"bp_{p_id}_{staff_category}")
-                    
-                    with c2:
-                        # Fixed Allowance checkbox option (Auto-calculates ₹8000)
-                        include_allowance = st.checkbox("Include Allowance (₹8,000)", value=False, key=f"al_check_{p_id}_{staff_category}")
-                        allowance = 8000.0 if include_allowance else 0.0
                         
-                    # Calculate Gross amount before applying tax percentage
-                    gross_amount = base_pay + allowance
-                    
-                    with c3:
-                        # Tax rates selectbox dynamically calculated based on Basic Pay + Allowance
+                        # Tax rates selectbox dynamically calculated based on Total Earnings
                         tax_rate_label = st.selectbox(
                             "Select Tax Rate", 
-                            ["0% (No Tax)", "1% (Social Security)", "5% (TDS)"], 
+                            ["0% (No Tax)", "1% (Social Security)", "5% (TDS)", "10% (Income Tax)", "15% (Higher Bracket)"], 
                             key=f"tax_{p_id}_{staff_category}"
                         )
+                    
+                    with c2:
+                        st.markdown("**➕ Allowances & Additions:**")
+                        # 1. Standard HRA/DA Allowance (₹8,000)
+                        include_allowance = st.checkbox("Include HRA/DA Allowance (₹8,000)", value=False, key=f"al_check_{p_id}_{staff_category}")
+                        allowance_val = 8000.0 if include_allowance else 0.0
                         
-                        # Extract percentage value from selection
-                        tax_percent = 0.0
-                        if "1%" in tax_rate_label: tax_percent = 0.01
-                        elif "5%" in tax_rate_label: tax_percent = 0.05
-                        elif "10%" in tax_rate_label: tax_percent = 0.10
-                        elif "15%" in tax_rate_label: tax_percent = 0.15
+                        # 2. Grade Checkbox (Value placeholder set to 0.0, can change later)
+                        include_grade = st.checkbox("Include Grade Pay", value=False, key=f"grade_check_{p_id}_{staff_category}")
+                        grade_val = 0.0 if include_grade else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount likhein
                         
-                        deductions = gross_amount * tax_percent
-                        if deductions > 0:
-                            st.caption(f"📉 Calculated Tax: ₹{deductions:,.2f}")
+                        # 3. Festival Allowance Checkbox (Value placeholder set to 0.0, can change later)
+                        include_festival = st.checkbox("Include Festival Allowance", value=False, key=f"fest_check_{p_id}_{staff_category}")
+                        festival_val = 0.0 if include_festival else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount likhein
                         
-                    net_total = gross_amount - deductions
-                    st.info(f"💵 Net In-Hand Salary: **₹{net_total:,.2f}** *(Gross: ₹{gross_amount:,.2f} | Tax Deducted: ₹{deductions:,.2f})*")
+                        # 4. Dress Allowance Checkbox (Value placeholder set to 0.0, can change later)
+                        include_dress = st.checkbox("Include Dress Allowance", value=False, key=f"dress_check_{p_id}_{staff_category}")
+                        dress_val = 0.0 if include_dress else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount likhein
+                        
+                    with c3:
+                        st.markdown("**➖ Deductions:**")
+                        # 1. Teacher Insurance Scheme Checkbox (Fixed to ₹800 as requested)
+                        include_insurance = st.checkbox("Teacher Insurance Scheme (₹800)", value=False, key=f"ins_check_{p_id}_{staff_category}")
+                        insurance_val = 800.0 if include_insurance else 0.0
+                        
+                        # 2. Employee Provident Fund (EPF) Checkbox (Value placeholder set to 0.0, can change later)
+                        include_epf = st.checkbox("Employee Provident Fund (EPF)", value=False, key=f"epf_check_{p_id}_{staff_category}")
+                        epf_val = 0.0 if include_epf else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount/logic likhein
+                    
+                    # Total Calculations Logic
+                    total_allowances = allowance_val + grade_val + festival_val + dress_val
+                    gross_amount = base_pay + total_allowances
+                    
+                    # Tax deduction logic based on selection
+                    tax_percent = 0.0
+                    if "1%" in tax_rate_label: tax_percent = 0.01
+                    elif "5%" in tax_rate_label: tax_percent = 0.05
+                    elif "10%" in tax_rate_label: tax_percent = 0.10
+                    elif "15%" in tax_rate_label: tax_percent = 0.15
+                    
+                    tax_deduction = gross_amount * tax_percent
+                    total_deductions = tax_deduction + insurance_val + epf_val
+                    
+                    # Net Pay Calculation
+                    net_total = gross_amount - total_deductions
+                    
+                    # Visual breakdown for user convenience
+                    st.info(f"💵 **Net In-Hand Salary: ₹{net_total:,.2f}** *(Gross Earnings: ₹{gross_amount:,.2f} | Total Deducted: ₹{total_deductions:,.2f})*")
                     
                     if st.button(f"💸 Release Salary for {p_name}", key=f"btn_{p_id}_{staff_category}"):
                         if is_admin():
@@ -862,8 +889,8 @@ elif choice == "Financial Billing":
                                     "staff_type": staff_category,
                                     "month_year": month_year_str,
                                     "basic_salary": base_pay,
-                                    "allowances": allowance,
-                                    "deductions": deductions,
+                                    "allowances": total_allowances,
+                                    "deductions": total_deductions,
                                     "status": "Paid",
                                     "payment_date": datetime.date.today().strftime("%Y-%m-%d")
                                 }, on_conflict="staff_id,month_year").execute()
