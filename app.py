@@ -246,10 +246,10 @@ elif choice == "Student Profiles":
             student_class = st.selectbox(
                 "Class", [str(i) for i in range(1, 13)] + ["Nursery", "LKG", "UKG"]
             )
-            section = st.selectbox("Section", ["Technical", "Education", "Science", "A (English medium)", "B"])
+            section = st.selectbox("Section", ["Technical", "Education", "Science", "A (English medium)", "B (General medium"])
             phone = st.text_input("Parent's Contact No.")
             
-            if st.form_submit_button("Save Student"):
+            if st.form_submit_button("Save Student Now"):
                 if is_admin():  # 🔐 Admin Security Lock
                     if name and roll_no:
                         try:
