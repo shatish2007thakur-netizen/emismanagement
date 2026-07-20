@@ -895,7 +895,7 @@ elif choice == "Financial Billing":
                     <hr style="border-top: 1px dashed #333;">
                     <p style="text-align:right; margin:2px 0;"><b>Total Payable Amount: ₹{st.session_state['last_bill_total']:.2f}</b></p>
                     <p style="text-align:right; margin:2px 0; color: green;"><b>Amount Paid Now: ₹{st.session_state['last_bill_paid']:.2f}</b></p>
-                    <p style="text-align:right; margin:2px 0; color: red;"><b>Remaining Net Dues: ₹{st.session_state['last_bill_due']:.2f}</b></p>
+                    <p style="text-align:right; margin:2px 0; color: red;"><b>Remaining Net Dues (Amount): ₹{st.session_state['last_bill_due']:.2f}</b></p>
                     <hr style="border-top: 1px dashed #333;">
                     <p style="text-align:center; margin-top:20px; font-size:12px;">Thank You! Keep this receipt safe.</p>
                 </div>
