@@ -625,10 +625,10 @@ elif choice == "Academic Ledger (Marks)":
             col1, col2 = st.columns(2)
             with col1:
                 subject = st.text_input("Subject")
-                exam_term = st.selectbox("Exam Term", ["First Term", "Mid Term", "Final Exam"])
+                exam_term = st.selectbox("Exam Term", ["First Term", "Middle Term", "Final Exam"])
             with col2:
                 marks_obtained = st.number_input("Marks Obtained", min_value=0.0, max_value=100.0)
-                total_marks = st.number_input("Total Marks", min_value=10.0, max_value=100.0, value=100.0)
+                total_marks = st.number_input("Total Marks", min_value=10.0, max_value=100.0, value=75.0)
 
             if st.button("Submit Marks"):
                 if is_admin():  # 🔐 Admin Security Lock
