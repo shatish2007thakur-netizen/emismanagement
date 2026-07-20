@@ -971,11 +971,11 @@ elif choice == "Financial Billing":
                         
                         # 3. Festival Allowance Checkbox (Value placeholder set to 0.0, can change later)
                         include_festival = st.checkbox("Include Festival Allowance", value=False, key=f"fest_check_{p_id}_{staff_category}")
-                        festival_val = 0.0 if include_festival else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount likhein
+                        festival_val = 1000.0 if include_festival else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount likhein
                         
                         # 4. Dress Allowance Checkbox (Value placeholder set to 0.0, can change later)
                         include_dress = st.checkbox("Include Dress Allowance", value=False, key=f"dress_check_{p_id}_{staff_category}")
-                        dress_val = 0.0 if include_dress else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount likhein
+                        dress_val = 1000.0 if include_dress else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount likhein
                         
                     with c3:
                         st.markdown("**➖ Deductions:**")
@@ -985,7 +985,7 @@ elif choice == "Financial Billing":
                         
                         # 2. Employee Provident Fund (EPF) Checkbox (Value placeholder set to 0.0, can change later)
                         include_epf = st.checkbox("Employee Provident Fund (EPF)", value=False, key=f"epf_check_{p_id}_{staff_category}")
-                        epf_val = 0.0 if include_epf else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount/logic likhein
+                        epf_val = 1000.0 if include_epf else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount/logic likhein
                     
                     # Total Calculations Logic
                     total_allowances = allowance_val + grade_val + festival_val + dress_val
