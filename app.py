@@ -967,7 +967,7 @@ elif choice == "Financial Billing":
                         
                         # 2. Grade Checkbox (Value placeholder set to 0.0, can change later)
                         include_grade = st.checkbox("Include Grade Pay", value=False, key=f"grade_check_{p_id}_{staff_category}")
-                        grade_val = 0.0 if include_grade else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount likhein
+                        grade_val = 1000.0 if include_grade else 0.0  # <-- Sir ke batane par 0.0 ki jagah amount likhein
                         
                         # 3. Festival Allowance Checkbox (Value placeholder set to 0.0, can change later)
                         include_festival = st.checkbox("Include Festival Allowance", value=False, key=f"fest_check_{p_id}_{staff_category}")
@@ -990,6 +990,7 @@ elif choice == "Financial Billing":
                     # Total Calculations Logic
                     total_allowances = allowance_val + grade_val + festival_val + dress_val
                     gross_amount = base_pay + total_allowances
+
                     
                     # Tax deduction logic based on selection
                     tax_percent = 0.0
