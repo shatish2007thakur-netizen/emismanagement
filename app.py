@@ -835,7 +835,7 @@ elif choice == "Financial Billing":
                         # Tax rates selectbox dynamically calculated based on Basic Pay + Allowance
                         tax_rate_label = st.selectbox(
                             "Select Tax Rate", 
-                            ["0% (No Tax)", "1% (Social Security)", "5% (TDS)", "10% (Income Tax)", "15% (Higher Bracket)"], 
+                            ["0% (No Tax)", "1% (Social Security)", "5% (TDS)"], 
                             key=f"tax_{p_id}_{staff_category}"
                         )
                         
