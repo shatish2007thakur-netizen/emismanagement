@@ -820,7 +820,8 @@ elif choice == "Financial Billing":
                     c1, c2, c3 = st.columns(3)
                     
                     with c1:
-                        base_pay = st.number_input(f"Basic Pay (₹)", min_value=0.0, step=500.0, key=f"bp_{p_id}_{staff_category}")
+                        # Default value changed from 0.0 to 58972.00 as requested
+                        base_pay = st.number_input(f"Basic Pay (₹)", min_value=0.0, step=500.0, value=58972.00, key=f"bp_{p_id}_{staff_category}")
                     
                     with c2:
                         # Fixed Allowance checkbox option (Auto-calculates ₹8000)
