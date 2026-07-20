@@ -69,7 +69,7 @@ def is_admin():
     if st.session_state["user_role"] == "Admin":
         return True
     else:
-        st.error("🛑 Access Denied: Sirf Admin hi data add, edit ya change kar sakta hai. Aap sirf view kar sakte hain.")
+        st.error("🛑 Access Denied: Sirf Admin hi data add, edit ya change kar sakta hai. Aap sirf view kar sakte hai.")
         return False
 
 
@@ -164,7 +164,7 @@ if choice == "Dashboard Overview":
             "Stationery & Printing",
             "Miscellaneous Expenses"
         ])
-        exp_amount = st.number_input("Amount Invested/Spent (₹)", min_value=0.0, step=500.0, value=1000.0)
+        exp_amount = st.number_input("Amount Invested/Spent (₹)", min_value=0.0, step=500.0, value=0.0)
         
         if st.button("Log Expense", type="secondary", use_container_width=True):
             if is_admin():  # 🔐 Admin Security Lock
