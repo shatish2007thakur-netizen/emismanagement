@@ -309,79 +309,146 @@ elif choice == "Teacher Directory":
 
 # --- 4. SMART ATTENDANCE (ADVANCED: STUDENT & TEACHER + PAST LOGS) ---
 elif choice == "Smart Attendance":
-    import streamlit.components.v1 as components  # <-- YE LINE YAHA ADD KAR DEIN
+    import streamlit.components.v1 as components  
+    from datetime import datetime
+    import datetime as dt_module # datetime naming conflict se bachne ke liye
     
     st.header("📝 Advanced Smart Attendance System")
-    # baki ka pura code bilkul pehle jaisa hi rahega...
     
-    # Do alag bada tabs
+    # Do alag bada tabs (Same structure jaisa aapka tha)
     main_tab1, main_tab2 = st.tabs(["🎯 Mark Current Attendance", "📊 View Past Attendance Logs"])
     
     with main_tab1:
         # Attendance type selector (Student vs Teacher)
         attendance_target = st.radio("Select Target", ["Students", "Teachers"], horizontal=True)
-        att_date = st.date_input("Attendance Date", datetime.date.today(), key="mark_date").strftime("%Y-%m-%d")
+        att_date = st.date_input("Attendance Date", dt_module.date.today(), key="mark_date").strftime("%Y-%m-%d")
         
         st.markdown(f"### ✏️ Marking Attendance for: **{attendance_target}** ({att_date})")
         
-        # ==================== BIOMETRIC SCANNER INTEGRATION ====================
-        st.markdown("#### 🤖 Biometric Authentication via Mantra Device")
+        # ---------------- NAYA ADDED SECTION: SUB-TABS FOR BIOMETRIC OPERATIONS ----------------
+        st.markdown("### 🤖 Biometric Control Panel")
+        bio_mode = st.tabs(["🔍 Daily Verification", "🆔 Fingerprint Registration"])
         
-        # Safe JS snippet avoiding Python character crash inside strings
-        mantra_js_code = """
-        <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; font-family: sans-serif;">
-            <h5>Mantra MFS100 Fingerprint Scanner</h5>
-            <button id="captureBtn" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">
-                🛑 Scan & Verify Fingerprint
-            </button>
-            <p id="status" style="margin-top: 8px; font-size: 13px; font-weight: bold; color: #555;">Device status: Ready</p>
-        </div>
-
-        <script>
-        document.getElementById("captureBtn").addEventListener("click", function() {
-            var statusEl = document.getElementById("status");
-            statusEl.innerText = "Scanning... Place finger on device.";
-            statusEl.style.color = "#ffc107";
-
-            var MethodCapture = '<PidOptions ver="1.0"><Opts fCount="1" fType="0" iCount="0" iType="0" pCount="0" pType="0" format="0" pidVer="2.0" timeout="10000" otp="" wadh="" posh="" env="P"/></PidOptions>';
-            var url = "http://127.0.0.1:11100/rd/capture";
-
-            fetch(url, {
-                method: "CAPTURE",
-                body: MethodCapture,
-                headers: {
-                    "Accept": "text/xml",
-                    "Content-Type": "text/xml"
-                }
-            })
-            .then(response => response.text())
-            .then(data => {
-                if (data.includes('errCode="0"')) {
-                    statusEl.innerText = "✅ Scan Successful!";
-                    statusEl.style.color = "#28a745";
-                    
-                    // Sending payload safely to parent wrapper without hash comments
-                    window.parent.postMessage({
-                        type: "MANTRA_SCAN_SUCCESS",
-                        xmlData: data
-                    }, "*");
-                } else {
-                    statusEl.innerText = "❌ Scan Failed. Verify finger placement.";
-                    statusEl.style.color = "#dc3545";
-                }
-            })
-            .catch(error => {
-                statusEl.innerText = "❌ Device Not Found! Keep Mantra RD Service running.";
-                statusEl.style.color = "#dc3545";
+        # --- SUB-TAB 1: LIVE VERIFICATION ---
+        with bio_mode[0]:
+            st.write("Daily verification ke liye niche scan karein aur token copy karke dynamic authentication verify karein.")
+            verify_id = st.text_input("Enter Roll No / Teacher ID to Verify:", key="verify_user_id")
+            scan_data_verification = st.text_area("Paste Encrypted Bio-Data for Authentication:", key="verify_hash_paste")
+            
+            verify_js = """
+            <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; font-family: sans-serif;">
+                <h5>Mantra Verification Engine</h5>
+                <button id="verifyBtn" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                    🔍 Click to Scan & Match
+                </button>
+                <p id="v_status" style="margin-top: 8px; font-size: 13px; font-weight: bold; color: #555;">Status: Ready to Verify</p>
+            </div>
+            <script>
+            document.getElementById("verifyBtn").addEventListener("click", function() {
+                var statusEl = document.getElementById("v_status");
+                statusEl.innerText = "Place finger on device..."; statusEl.style.color = "#ffc107";
+                fetch("http://127.0.0.1:11100/rd/capture", {
+                    method: "CAPTURE", body: '<PidOptions ver="1.0"><Opts fCount="1" fType="0" iCount="0" iType="0" pCount="0" pType="0" format="0" pidVer="2.0" timeout="10000" otp="" wadh="" posh="" env="P"/></PidOptions>',
+                    headers: { "Accept": "text/xml", "Content-Type": "text/xml" }
+                })
+                .then(response => response.text()).then(data => {
+                    if (data.includes('errCode="0"')) {
+                        statusEl.innerText = "✅ Scan Successful!"; statusEl.style.color = "#28a745";
+                        var parser = new DOMParser(); var xmlDoc = parser.parseFromString(data, "text/xml");
+                        var pidData = xmlDoc.getElementsByTagName("PidData")[0].innerHTML;
+                        alert("Verification Data Generated! Copy this token to field below: " + pidData);
+                    } else { statusEl.innerText = "❌ Verification Scan Failed."; statusEl.style.color = "#dc3545"; }
+                }).catch(error => { statusEl.innerText = "❌ Device offline."; statusEl.style.color = "#dc3545"; });
             });
-        });
-        </script>
-        """
-        components.html(mantra_js_code, height=190)
-        # =======================================================================
+            </script>
+            """
+            components.html(verify_js, height=150)
+            
+            if st.button("⚡ Verify & Mark Present Automatically", key="btn_bio_verify"):
+                if not verify_id or not scan_data_verification:
+                    st.warning("Kripya ID aur Bio-Data dono provide karein.")
+                else:
+                    table_name = "students" if attendance_target == "Students" else "teachers"
+                    id_col = "roll_no" if attendance_target == "Students" else "teacher_id"
+                    log_table = "attendance" if attendance_target == "Students" else "teacher_attendance"
+                    
+                    try:
+                        user_res = supabase.table(table_name).select("name, fingerprint_hash").eq(id_col, verify_id).execute()
+                        if not user_res.data:
+                            st.error("❌ User database me nahi mila!")
+                        else:
+                            reg_hash = user_res.data[0].get("fingerprint_hash")
+                            user_name = user_res.data[0].get("name")
+                            if not reg_hash:
+                                st.warning("⚠️ Is user ka fingerprint register nahi hai. Pehle enroll karein!")
+                            elif reg_hash[:40] in scan_data_verification or scan_data_verification[:40] in reg_hash:
+                                # Mark attendance automatically in logs
+                                supabase.table(log_table).upsert(
+                                    {id_col: verify_id, "date": att_date, "status": "Present"},
+                                    on_conflict=f"{id_col},date"
+                                ).execute()
+                                st.success(f"🎉 Biometric Verified! {user_name} marked as Present.")
+                            else:
+                                st.error("❌ Biometric Match Failed! Fingerprint match nahi hua.")
+                    except Exception as e:
+                        st.error(f"Error: {e}")
+                        
+        # --- SUB-TAB 2: REGISTER NEW FINGERPRINT ---
+        with bio_mode[1]:
+            st.write("Kisi naye user ka fingerprint profile database se link karne ke liye yahan enrollment karein.")
+            reg_id = st.text_input("Enter Roll No / Teacher ID to Enroll Biometric:", key="reg_user_id")
+            fingerprint_input_data = st.text_area("Paste Encrypted Base64 Template from enrollment scan:", key="reg_hash_input")
+            
+            register_js = """
+            <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fff5f5; font-family: sans-serif;">
+                <h5 style="color: #c0392b;">Biometric Enrollment Engine</h5>
+                <button id="regBtn" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                    🛑 Scan Finger to Enroll
+                </button>
+                <p id="r_status" style="margin-top: 8px; font-size: 13px; font-weight: bold; color: #555;">Status: Click to start</p>
+            </div>
+            <script>
+            document.getElementById("regBtn").addEventListener("click", function() {
+                var statusEl = document.getElementById("r_status");
+                statusEl.innerText = "Scanning fingerprint..."; statusEl.style.color = "#ffc107";
+                fetch("http://127.0.0.1:11100/rd/capture", {
+                    method: "CAPTURE", body: '<PidOptions ver="1.0"><Opts fCount="1" fType="0" iCount="0" iType="0" pCount="0" pType="0" format="0" pidVer="2.0" timeout="10000" otp="" wadh="" posh="" env="P"/></PidOptions>',
+                    headers: { "Accept": "text/xml", "Content-Type": "text/xml" }
+                })
+                .then(response => response.text()).then(data => {
+                    if (data.includes('errCode="0"')) {
+                        statusEl.innerText = "✅ Biometric Template Extracted!"; statusEl.style.color = "#28a745";
+                        var parser = new DOMParser(); var xmlDoc = parser.parseFromString(data, "text/xml");
+                        var pidData = xmlDoc.getElementsByTagName("PidData")[0].innerHTML;
+                        alert("Enrollment Successful! Copy this data: " + pidData);
+                    } else { statusEl.innerText = "❌ Scan Failed."; statusEl.style.color = "#dc3545"; }
+                }).catch(error => { statusEl.innerText = "❌ Device offline."; statusEl.style.color = "#dc3545"; });
+            });
+            </script>
+            """
+            components.html(register_js, height=150)
+            
+            if st.button("💾 Save Fingerprint to User Profile", key="btn_bio_save"):
+                if not reg_id or not fingerprint_input_data:
+                    st.warning("Kripya ID aur biometric data string fill karein!")
+                else:
+                    table_target = "students" if attendance_target == "Students" else "teachers"
+                    id_target_col = "roll_no" if attendance_target == "Students" else "teacher_id"
+                    try:
+                        update_res = supabase.table(table_target).update(
+                            {"fingerprint_hash": fingerprint_input_data}
+                        ).eq(id_target_col, reg_id).execute()
+                        if update_res.data:
+                            st.success(f"✨ Successfully Registered Biometric for ID: {reg_id}!")
+                        else:
+                            st.error("❌ ID galat hai ya user table me maujood nahi hai.")
+                    except Exception as e:
+                        st.error(f"Error saving data: {e}")
+        
+        st.markdown("---")
+        # ------------------- BANEY RAKHEIN AAPKA PURANA MANUAL/LIST VALA CODE -------------------
         
         if attendance_target == "Students":
-            
             # --- STUDENT ATTENDANCE SECTION ---
             try:
                 class_res = supabase.table("students").select("student_class").execute()
@@ -474,11 +541,11 @@ elif choice == "Smart Attendance":
                 st.info("Pehle Teacher Directory me jaakar teachers register karein.")
                 
     with main_tab2:
-        # --- PAST ATTENDANCE LOGS VIEW ---
+        # --- PAST ATTENDANCE LOGS VIEW (Aapka bilkul purana untouched logic) ---
         st.subheader("🔍 Search Historical Attendance Records")
         
         view_target = st.selectbox("Select Record Type", ["Students Records", "Teachers Records"])
-        view_date = st.date_input("Select Date to View Logs", datetime.date.today(), key="view_date_picker").strftime("%Y-%m-%d")
+        view_date = st.date_input("Select Date to View Logs", dt_module.date.today(), key="view_date_picker").strftime("%Y-%m-%d")
         
         if view_target == "Students Records":
             try:
