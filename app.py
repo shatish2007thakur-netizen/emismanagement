@@ -893,7 +893,7 @@ elif choice == "Financial Billing":
                     <p>Current Fee ({st.session_state['last_bill_type']}): ₹{st.session_state['last_bill_current']:.2f}</p>
                     <p>Previous Outstanding Dues: ₹{st.session_state['last_bill_prev_dues']:.2f}</p>
                     <hr style="border-top: 1px dashed #333;">
-                    <p style="text-align:right; margin:2px 0;"><b>Total Payable: ₹{st.session_state['last_bill_total']:.2f}</b></p>
+                    <p style="text-align:right; margin:2px 0;"><b>Total Payable Amount: ₹{st.session_state['last_bill_total']:.2f}</b></p>
                     <p style="text-align:right; margin:2px 0; color: green;"><b>Amount Paid Now: ₹{st.session_state['last_bill_paid']:.2f}</b></p>
                     <p style="text-align:right; margin:2px 0; color: red;"><b>Remaining Net Dues: ₹{st.session_state['last_bill_due']:.2f}</b></p>
                     <hr style="border-top: 1px dashed #333;">
