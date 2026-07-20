@@ -341,7 +341,7 @@ elif choice == "Smart Attendance":
                 <button id="verifyBtn" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">
                     🔍 Click to Scan & Match
                 </button>
-                <p id="v_status" style="margin-top: 8px; font-size: 13px; font-weight: bold; color: #555;">Status: Ready to Verify</p>
+                <p id="v_status" style="margin-top: 8px; font-size: 13px; font-weight: bold; color: #555;">Status: Hello Ready to Verify</p>
             </div>
             <script>
             document.getElementById("verifyBtn").addEventListener("click", function() {
