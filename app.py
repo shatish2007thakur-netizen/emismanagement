@@ -309,7 +309,10 @@ elif choice == "Teacher Directory":
 
 # --- 4. SMART ATTENDANCE (ADVANCED: STUDENT & TEACHER + PAST LOGS) ---
 elif choice == "Smart Attendance":
+    import streamlit.components.v1 as components  # <-- YE LINE YAHA ADD KAR DEIN
+    
     st.header("📝 Advanced Smart Attendance System")
+    # baki ka pura code bilkul pehle jaisa hi rahega...
     
     # Do alag bada tabs
     main_tab1, main_tab2 = st.tabs(["🎯 Mark Current Attendance", "📊 View Past Attendance Logs"])
