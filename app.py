@@ -298,7 +298,7 @@ elif choice == "Teacher Directory":
                         except Exception as e:
                             st.error(f"Cloud Error: {e}")
                     else:
-                        st.warning("Please enter Teacher Name.")
+                        st.warning("!Please enter Teacher Name.")
     with tab2:
         try:
             res = supabase.table("teachers").select("*").execute()
