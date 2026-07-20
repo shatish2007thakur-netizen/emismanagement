@@ -377,10 +377,11 @@ elif choice == "Smart Attendance":
         });
         </script>
         """
-        components.html(mantra_js_code, height=140)
+        components.html(mantra_js_code, height=190)
         # =======================================================================
         
         if attendance_target == "Students":
+            
             # --- STUDENT ATTENDANCE SECTION ---
             try:
                 class_res = supabase.table("students").select("student_class").execute()
