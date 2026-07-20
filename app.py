@@ -321,6 +321,62 @@ elif choice == "Smart Attendance":
         
         st.markdown(f"### ✏️ Marking Attendance for: **{attendance_target}** ({att_date})")
         
+        # ==================== BIOMETRIC SCANNER INTEGRATION ====================
+        st.markdown("#### 🤖 Biometric Authentication via Mantra Device")
+        
+        # Safe JS snippet avoiding Python character crash inside strings
+        mantra_js_code = """
+        <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; font-family: sans-serif;">
+            <h5>Mantra MFS100 Fingerprint Scanner</h5>
+            <button id="captureBtn" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                🛑 Scan & Verify Fingerprint
+            </button>
+            <p id="status" style="margin-top: 8px; font-size: 13px; font-weight: bold; color: #555;">Device status: Ready</p>
+        </div>
+
+        <script>
+        document.getElementById("captureBtn").addEventListener("click", function() {
+            var statusEl = document.getElementById("status");
+            statusEl.innerText = "Scanning... Place finger on device.";
+            statusEl.style.color = "#ffc107";
+
+            var MethodCapture = '<PidOptions ver="1.0"><Opts fCount="1" fType="0" iCount="0" iType="0" pCount="0" pType="0" format="0" pidVer="2.0" timeout="10000" otp="" wadh="" posh="" env="P"/></PidOptions>';
+            var url = "http://127.0.0.1:11100/rd/capture";
+
+            fetch(url, {
+                method: "CAPTURE",
+                body: MethodCapture,
+                headers: {
+                    "Accept": "text/xml",
+                    "Content-Type": "text/xml"
+                }
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data.includes('errCode="0"')) {
+                    statusEl.innerText = "✅ Scan Successful!";
+                    statusEl.style.color = "#28a745";
+                    
+                    // Sending payload safely to parent wrapper without hash comments
+                    window.parent.postMessage({
+                        type: "MANTRA_SCAN_SUCCESS",
+                        xmlData: data
+                    }, "*");
+                } else {
+                    statusEl.innerText = "❌ Scan Failed. Verify finger placement.";
+                    statusEl.style.color = "#dc3545";
+                }
+            })
+            .catch(error => {
+                statusEl.innerText = "❌ Device Not Found! Keep Mantra RD Service running.";
+                statusEl.style.color = "#dc3545";
+            });
+        });
+        </script>
+        """
+        components.html(mantra_js_code, height=140)
+        # =======================================================================
+        
         if attendance_target == "Students":
             # --- STUDENT ATTENDANCE SECTION ---
             try:
