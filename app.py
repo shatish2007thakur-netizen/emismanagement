@@ -4,6 +4,7 @@ import streamlit as st
 from supabase import create_client, Client
 import base64
 from PIL import Image
+import os 
 
 # ==============================================================================
 # --- SUPABASE CONFIGURATION (Now Fully Secured via Secrets) ---
@@ -110,8 +111,35 @@ def set_background(png_file):
 # ==============================================================================
 # --- SET BACKGROUND IMAGE ---
 # ==============================================================================
-# Use your provided school photo
-set_background('schoo photo1.jpg') 
+# Safe Background Loader
+def set_background(image_name):
+    # Current file ke exact folder path se image khojna
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, image_name)
+    
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as f:
+            data = f.read()
+        bin_str = base64.b64encode(data).decode()
+        
+        page_bg_img = f'''
+        <style>
+        .stApp {{
+            background-image: url("data:image/jpeg;base64,{bin_str}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }}
+        </style>
+        '''
+        st.markdown(page_bg_img, unsafe_allow_html=True)
+    else:
+        # File na milne par App crash nahi hoga, solid background dikhayega
+        st.warning(f"⚠️ Image '{image_name}' GitHub repo me nahi mili. Direct background display ho raha hai.")
+
+# Call function with exact filename
+set_background('schoo photo1.jpg')
 
 # ==============================================================================
 # --- SESSION STATE INITIALIZATION ---
