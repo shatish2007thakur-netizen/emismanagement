@@ -38,7 +38,7 @@ st.set_page_config(
 # --- DIRECT URL BACKGROUND LOADER ---
 # ==============================================================================
 # 🎯 PostImage Direct Link Integrated Here:
-BACKGROUND_IMAGE_URL = "https://i.postimg.cc/SNj21qJr/hello.png"
+BACKGROUND_IMAGE_URL = "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=1920&auto=format&fit=crop"
 
 def set_background_url(url):
     page_bg_img = f'''
