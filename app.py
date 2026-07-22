@@ -109,11 +109,9 @@ def set_background(png_file):
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
 # ==============================================================================
-# --- SET BACKGROUND IMAGE ---
+# --- SAFE PNG BACKGROUND LOADER ---
 # ==============================================================================
-# Safe Background Loader
 def set_background(image_name):
-    # Current file ke exact folder path se image khojna
     base_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_dir, image_name)
     
@@ -122,24 +120,58 @@ def set_background(image_name):
             data = f.read()
         bin_str = base64.b64encode(data).decode()
         
+        # PNG format ke liye image/png set kiya hai
         page_bg_img = f'''
         <style>
         .stApp {{
-            background-image: url("data:image/jpeg;base64,{bin_str}");
+            background-image: url("data:image/png;base64,{bin_str}");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
         }}
+        
+        /* Clear styling for login UI over image */
+        [data-testid="stHeader"] {{display: none;}}
+        
+        .login-card-container {{
+            background-color: rgba(255, 255, 255, 0.92);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+        }}
+        
+        .header-title {{
+            color: #1e293b;
+            font-size: 20px;
+            font-weight: 700;
+        }}
+        
+        .login-title-right {{
+            color: #4318FF;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }}
+        
+        div.stButton > button {{
+            background-color: #4318FF;
+            color: white;
+            border-radius: 6px;
+            height: 45px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+        }}
         </style>
         '''
         st.markdown(page_bg_img, unsafe_allow_html=True)
     else:
-        # File na milne par App crash nahi hoga, solid background dikhayega
-        st.warning(f"⚠️ Image '{image_name}' GitHub repo me nahi mili. Direct background display ho raha hai.")
+        st.error(f"❌ Image '{image_name}' GitHub folder me nahi mili! Kripya check karein ki file exact GitHub me uploaded hai ya nahi.")
 
-# Call function with exact filename
-set_background('schoo photo1.png')
+# Call function with new filename
+set_background('school.png')
 
 # ==============================================================================
 # --- SESSION STATE INITIALIZATION ---
