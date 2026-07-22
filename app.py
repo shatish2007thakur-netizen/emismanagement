@@ -35,10 +35,10 @@ st.set_page_config(
 )
 
 # ==============================================================================
-# --- DIRECT URL BACKGROUND LOADER (100% NO ERROR) ---
+# --- DIRECT URL BACKGROUND LOADER ---
 # ==============================================================================
-# 🎯 Yahan PostImage se mila hua DIRECT LINK paste karein:
-BACKGROUND_IMAGE_URL = "https://i.postimg.cc/SNj21qJr/hello.png"  # <-- Is link ko apne uploaded direct link se replace karein!
+# 🎯 PostImage Direct Link Integrated Here:
+BACKGROUND_IMAGE_URL = "https://i.postimg.cc/SNj21qJr/hello.png"
 
 def set_background_url(url):
     page_bg_img = f'''
@@ -204,6 +204,8 @@ st.markdown("---")
 
 if is_admin():
     st.success("✅ Admin Control Enabled: Aap yahan student/teacher data edit ya upload kar sakte hain.")
+
+
 # --- SIDEBAR NAVIGATION ---
 menu = [
     "Dashboard Overview",
