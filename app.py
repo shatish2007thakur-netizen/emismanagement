@@ -34,19 +34,27 @@ st.set_page_config(
 )
 
 # ==============================================================================
-# --- SAFE PNG BACKGROUND LOADER ---
+# --- BACKGROUND IMAGE LOADER (Automatic Path Detection) ---
 # ==============================================================================
-def set_background(image_name):
-    # Current directory se image path banana
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, image_name)
+def set_background(image_filename):
+    # Local Desktop path (Agar aap local PC par testing kar rahe ho)
+    local_path = r"C:\Users\satis\OneDrive\Desktop\hello.png"
     
-    if os.path.exists(file_path):
-        with open(file_path, 'rb') as f:
+    # Relative path (Jab file GitHub Repo me ho)
+    repo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), image_filename)
+    
+    final_path = None
+    if os.path.exists(repo_path):
+        final_path = repo_path
+    elif os.path.exists(local_path):
+        final_path = local_path
+
+    if final_path:
+        with open(final_path, 'rb') as f:
             data = f.read()
         bin_str = base64.b64encode(data).decode()
         
-        page_bg_img = f'''
+        st.markdown(f'''
         <style>
         .stApp {{
             background-image: url("data:image/png;base64,{bin_str}");
@@ -55,7 +63,6 @@ def set_background(image_name):
             background-repeat: no-repeat;
             background-attachment: fixed;
         }}
-        
         [data-testid="stHeader"] {{display: none;}}
         
         .login-card-left {{
@@ -65,43 +72,12 @@ def set_background(image_name):
             box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
             border: 1px solid #cbd5e1;
         }}
-        
-        .header-title {{
-            color: #1e293b;
-            font-size: 20px;
-            font-weight: 700;
-        }}
-        
-        .login-title-right {{
-            color: #4318FF;
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }}
-        
-        div.stButton > button {{
-            background-color: #4318FF;
-            color: white;
-            border-radius: 6px;
-            height: 45px;
-            width: 100%;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
-            margin-top: 10px;
-        }}
-        
-        div.stButton > button:hover {{
-            background-color: #3311cc;
-            color: white;
-        }}
         </style>
-        '''
-        st.markdown(page_bg_img, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
     else:
-        st.error(f"❌ Image '{image_name}' GitHub repository me nahi mili! Kripya check karein ki 'hello.png' file aapne GitHub par upload ki hai ya nahi.")
+        st.error("❌ Background image nahi mili. Kripya 'hello.png' ko GitHub repository me upload karein.")
 
-# 🎯 Photo Name Set: hello.png
+# Call function
 set_background('hello.png')
 
 # ==============================================================================
