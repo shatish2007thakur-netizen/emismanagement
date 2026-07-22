@@ -23,8 +23,6 @@ def get_supabase_client() -> Client:
 supabase = get_supabase_client()
 
 
-import streamlit as st
-
 # ==============================================================================
 # --- 🏢 APP CONFIGURATION ---
 # ==============================================================================
@@ -34,69 +32,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
-
-# ==============================================================================
-# --- DIRECT URL BACKGROUND LOADER ---
-# ==============================================================================
-# 🎯 PostImage Direct Link Integrated Here:
-BACKGROUND_IMAGE_URL = "BACKGROUND_IMAGE_URL = "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=1920&auto=format&fit=crop""
-
-def set_background_url(url):
-    page_bg_img = f'''
-    <style>
-    .stApp {{
-        background-image: url("{url}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }}
-    
-    [data-testid="stHeader"] {{display: none;}}
-    
-    .login-card-left {{
-        background-color: rgba(255, 255, 255, 0.92);
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
-        border: 1px solid #cbd5e1;
-    }}
-    
-    .header-title {{
-        color: #1e293b;
-        font-size: 20px;
-        font-weight: 700;
-    }}
-    
-    .login-title-right {{
-        color: #4318FF;
-        font-size: 26px;
-        font-weight: 700;
-        margin-bottom: 20px;
-    }}
-    
-    div.stButton > button {{
-        background-color: #4318FF;
-        color: white;
-        border-radius: 6px;
-        height: 45px;
-        width: 100%;
-        font-size: 16px;
-        font-weight: 600;
-        border: none;
-        margin-top: 10px;
-    }}
-    
-    div.stButton > button:hover {{
-        background-color: #3311cc;
-        color: white;
-    }}
-    </style>
-    '''
-    st.markdown(page_bg_img, unsafe_allow_html=True)
-
-# Function Call
-set_background_url(BACKGROUND_IMAGE_URL)
 
 # ==============================================================================
 # --- SESSION STATE INITIALIZATION ---
@@ -117,20 +52,81 @@ def is_admin():
         return False
 
 # ==============================================================================
-# --- LOGIN PAGE ONLY ---
+# --- FULL SCREEN IEMIS LOGIN PAGE ONLY ---
 # ==============================================================================
 if not st.session_state["logged_in"]:
+    # Custom CSS: Hide Sidebar & Streamlit Header on Login Screen
     st.markdown("""
     <style>
         [data-testid="stSidebar"] {display: none;}
+        [data-testid="stHeader"] {display: none;}
+        
+        .stApp {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        }
+        
+        .block-container {
+            padding-top: 4rem;
+            padding-bottom: 2rem;
+        }
+
+        .login-card {
+            background-color: #ffffff;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+        }
+
+        .header-title {
+            color: #1e293b;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .sub-title {
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .contact-info {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 2;
+        }
+
+        .login-title {
+            color: #4318FF;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        div.stButton > button {
+            background-color: #4318FF;
+            color: white;
+            border-radius: 6px;
+            height: 45px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+        }
+        div.stButton > button:hover {
+            background-color: #3311cc;
+            color: white;
+        }
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown('<br><br>', unsafe_allow_html=True)
+    # Center Login Card on Screen
     _, center_col, _ = st.columns([0.5, 3, 0.5])
 
     with center_col:
-        st.markdown('<div class="login-card-left">', unsafe_allow_html=True)
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
         
         left_col, divider, right_col = st.columns([1.3, 0.1, 1.2])
 
@@ -139,7 +135,7 @@ if not st.session_state["logged_in"]:
             st.markdown('<div class="header-title">🇳🇵 Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
             
             st.markdown("""
-            <div style="color: #475569; font-size: 14px; margin-bottom: 15px;">
+            <div class="sub-title">
                 <b>नेपाल सरकार</b><br>
                 शिक्षा, विज्ञान तथा प्रविधि मन्त्रालय<br>
                 शिक्षा तथा मानवस्रोत विकास केन्द्र<br>
@@ -148,7 +144,7 @@ if not st.session_state["logged_in"]:
             """, unsafe_allow_html=True)
             
             st.markdown("""
-            <div style="font-size: 13px; color: #64748b; line-height: 2;">
+            <div class="contact-info">
                 📞 <b>Phone:</b> 977-1-6638704<br>
                 🎧 <b>Support:</b> +9779709089702<br>
                 ✉️ <b>Email:</b> iemis@cehrd.gov.np
@@ -157,14 +153,16 @@ if not st.session_state["logged_in"]:
 
         # --- CENTER DIVIDER ---
         with divider:
-            st.markdown('<div style="border-left: 2px solid #cbd5e1; height: 100%; margin: 0 auto;"></div>', unsafe_allow_html=True)
+            st.markdown("<div style='border-left: 2px solid #e2e8f0; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
 
         # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
-            st.markdown('<div class="login-title-right">Login</div>', unsafe_allow_html=True)
+            st.markdown('<div class="login-title">Login</div>', unsafe_allow_html=True)
             
             username = st.text_input("Username*", placeholder="Enter Username")
             password = st.text_input("Password*", type="password", placeholder="Password")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
             
             if st.button("Login"):
                 if "credentials" in st.secrets and \
@@ -177,6 +175,7 @@ if not st.session_state["logged_in"]:
                 else:
                     st.error("Invalid Username or Password!")
 
+            # Guest / Public Read-Only Button
             if st.button("🌐 Continue as Guest (Read-Only)", key="guest_btn"):
                 st.session_state["logged_in"] = True
                 st.session_state["user_role"] = "Guest"
@@ -184,13 +183,15 @@ if not st.session_state["logged_in"]:
 
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Stop execution so dashboard doesn't render below
+    # 🚨 SABSE IMPORTANT LINE: Login screen show karne ke baad code aage nahi chalega!
     st.stop()
 
 
 # ==============================================================================
-# --- MAIN DASHBOARD (Visible AFTER Login) ---
+# --- MAIN DASHBOARD (Aapka Sara Existing Dashboard Code Yahan Aayega) ---
 # ==============================================================================
+
+# Sidebar Settings
 st.sidebar.title("🔐 Access Control")
 st.sidebar.write(f"Logged in as: **{st.session_state['user_role']}**")
 
@@ -199,13 +200,24 @@ if st.sidebar.button("Logout"):
     st.session_state["user_role"] = "Guest"
     st.rerun()
 
-st.title("🏢 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
-st.caption("Complete Educational Management Suite with Advanced Analytics (Cloud Database).")
+# ------------------------------------------------------------------------------
+# AAPKA DASHBOARD CODE (Iske niche apna School Performance / Metrics code dalein)
+# ------------------------------------------------------------------------------
+st.title("🏫 School Performance & Real-time Statistics")
+
+# Example Metrics (Is jagah aapka purana dashboard code rahega)
+col1, col2, col3, col4, col5 = st.columns(5)
+col1.metric("Total Students", "17")
+col2.metric("Active Teachers", "6")
+col3.metric("Total Revenue", "₹37,750.00")
+col4.metric("Total Expenses", "₹29,200.00", delta="-₹29,200")
+col5.metric("Net Balance (Wallet)", "₹8,550.00")
+
 st.markdown("---")
 
+# Data Edit Option check
 if is_admin():
-    st.success("✅ Admin Control Enabled: Aap yahan student/teacher data edit ya upload kar sakte hain.")
-
+    st.success("✅ Admin Rights Active: Aap yahan student, teacher ya payment details add/edit kar sakte hain.")
 
 # --- SIDEBAR NAVIGATION ---
 menu = [
