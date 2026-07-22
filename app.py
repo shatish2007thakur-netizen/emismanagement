@@ -22,8 +22,6 @@ def get_supabase_client() -> Client:
 
 supabase = get_supabase_client()
 
-import streamlit as st
-
 # ==============================================================================
 # --- 🏢 APP CONFIGURATION ---
 # ==============================================================================
@@ -35,46 +33,47 @@ st.set_page_config(
 )
 
 # ==============================================================================
-# --- DIRECT URL BACKGROUND LOADER ---
+# --- HELPER: FUNCTION TO SET BACKGROUND IMAGE ---
 # ==============================================================================
-# 🎯 PostImage Direct Link Integrated Here:
-BACKGROUND_IMAGE_URL = ""C:\Users\satis\OneDrive\Desktop\hello.png""
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
-def set_background_url(url):
-    page_bg_img = f'''
+def set_background(png_file):
+    bin_str = get_base64_of_bin_file(png_file)
+    page_bg_img = '''
     <style>
-    .stApp {{
-        background-image: url("{url}");
+    .stApp {
+        background-image: url("data:image/jpeg;base64,%s");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
         background-attachment: fixed;
-    }}
+    }
     
-    [data-testid="stHeader"] {{display: none;}}
+    /* Login Page CSS modifications for readability on background */
+    [data-testid="stHeader"] {display: none;}
     
-    .login-card-left {{
-        background-color: rgba(255, 255, 255, 0.92);
+    .login-card-left {
+        background-color: rgba(255, 255, 255, 0.9); /* Add opacity for text readability */
         padding: 30px;
         border-radius: 12px;
         box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
-        border: 1px solid #cbd5e1;
-    }}
+    }
     
-    .header-title {{
-        color: #1e293b;
-        font-size: 20px;
-        font-weight: 700;
-    }}
-    
-    .login-title-right {{
+    .login-title-right {
         color: #4318FF;
         font-size: 26px;
         font-weight: 700;
         margin-bottom: 20px;
-    }}
+    }
     
-    div.stButton > button {{
+    .sub-title, .contact-info, .header-title {
+        color: #1e293b; /* Dark text for contrast */
+    }
+    
+    div.stButton > button {
         background-color: #4318FF;
         color: white;
         border-radius: 6px;
@@ -84,18 +83,94 @@ def set_background_url(url):
         font-weight: 600;
         border: none;
         margin-top: 10px;
-    }}
+    }
     
-    div.stButton > button:hover {{
+    div.stButton > button:hover {
         background-color: #3311cc;
         color: white;
-    }}
+    }
+    
+    /* Login Input fields on background */
+    [data-testid="stTextInput"] > div > div > input, [data-testid="stTextInput"] > div > label {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        color: #1e293b !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Center divider on image */
+    .divider-line {
+        border-left: 2px solid rgba(255, 255, 255, 0.5); 
+        height: 100%; 
+        margin: 0 auto;
+    }
     </style>
-    '''
+    ''' % bin_str
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# Function Call
-set_background_url(BACKGROUND_IMAGE_URL)
+# ==============================================================================
+# --- SAFE PNG BACKGROUND LOADER ---
+# ==============================================================================
+def set_background(image_name):
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, image_name)
+    
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as f:
+            data = f.read()
+        bin_str = base64.b64encode(data).decode()
+        
+        # PNG format ke liye image/png set kiya hai
+        page_bg_img = f'''
+        <style>
+        .stApp {{
+            background-image: url("data:image/png;base64,{bin_str}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }}
+        
+        /* Clear styling for login UI over image */
+        [data-testid="stHeader"] {{display: none;}}
+        
+        .login-card-container {{
+            background-color: rgba(255, 255, 255, 0.92);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+        }}
+        
+        .header-title {{
+            color: #1e293b;
+            font-size: 20px;
+            font-weight: 700;
+        }}
+        
+        .login-title-right {{
+            color: #4318FF;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }}
+        
+        div.stButton > button {{
+            background-color: #4318FF;
+            color: white;
+            border-radius: 6px;
+            height: 45px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+        }}
+        </style>
+        '''
+        st.markdown(page_bg_img, unsafe_allow_html=True)
+    else:
+        st.error(f"❌ Image '{image_name}' GitHub folder me nahi mili! Kripya check karein ki file exact GitHub me uploaded hai ya nahi.")
+
+# Call function with new filename
+set_background('hello.png')
 
 # ==============================================================================
 # --- SESSION STATE INITIALIZATION ---
@@ -116,21 +191,25 @@ def is_admin():
         return False
 
 # ==============================================================================
-# --- LOGIN PAGE ONLY ---
+# --- LOGIN PAGE ONLY (Dashboard hidden on image) ---
 # ==============================================================================
 if not st.session_state["logged_in"]:
+    # Custom CSS to hide sidebar on login screen only
     st.markdown("""
     <style>
         [data-testid="stSidebar"] {display: none;}
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown('<br><br>', unsafe_allow_html=True)
+    # Center Login Card on Screen
+    st.markdown('<br><br>', unsafe_allow_html=True) # Upper space
     _, center_col, _ = st.columns([0.5, 3, 0.5])
 
     with center_col:
+        # Main opaque card container for text readability
         st.markdown('<div class="login-card-left">', unsafe_allow_html=True)
         
+        # Split card into Left (Branding) and Right (Login Form)
         left_col, divider, right_col = st.columns([1.3, 0.1, 1.2])
 
         # --- LEFT COLUMN: BRANDING ---
@@ -138,7 +217,7 @@ if not st.session_state["logged_in"]:
             st.markdown('<div class="header-title">🇳🇵 Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
             
             st.markdown("""
-            <div style="color: #475569; font-size: 14px; margin-bottom: 15px;">
+            <div class="sub-title">
                 <b>नेपाल सरकार</b><br>
                 शिक्षा, विज्ञान तथा प्रविधि मन्त्रालय<br>
                 शिक्षा तथा मानवस्रोत विकास केन्द्र<br>
@@ -147,7 +226,7 @@ if not st.session_state["logged_in"]:
             """, unsafe_allow_html=True)
             
             st.markdown("""
-            <div style="font-size: 13px; color: #64748b; line-height: 2;">
+            <div class="contact-info">
                 📞 <b>Phone:</b> 977-1-6638704<br>
                 🎧 <b>Support:</b> +9779709089702<br>
                 ✉️ <b>Email:</b> iemis@cehrd.gov.np
@@ -156,16 +235,20 @@ if not st.session_state["logged_in"]:
 
         # --- CENTER DIVIDER ---
         with divider:
-            st.markdown('<div style="border-left: 2px solid #cbd5e1; height: 100%; margin: 0 auto;"></div>', unsafe_allow_html=True)
+            st.markdown('<div class="divider-line"></div>', unsafe_allow_html=True)
 
         # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
             st.markdown('<div class="login-title-right">Login</div>', unsafe_allow_html=True)
             
-            username = st.text_input("Username*", placeholder="Enter Username")
-            password = st.text_input("Password*", type="password", placeholder="Password")
+            # Form with input labels for clear visibility
+            with st.form("login_form"):
+                username = st.text_input("Username*", placeholder="Enter Username")
+                password = st.text_input("Password*", type="password", placeholder="Password")
+                login_btn = st.form_submit_button("Login")
             
-            if st.button("Login"):
+            # Handle Login logic
+            if login_btn:
                 if "credentials" in st.secrets and \
                    username == st.secrets["credentials"]["admin_username"] and \
                    password == st.secrets["credentials"]["admin_password"]:
@@ -176,20 +259,25 @@ if not st.session_state["logged_in"]:
                 else:
                     st.error("Invalid Username or Password!")
 
+            st.markdown('<br>', unsafe_allow_html=True)
+            
+            # Guest / Public Read-Only Button
             if st.button("🌐 Continue as Guest (Read-Only)", key="guest_btn"):
                 st.session_state["logged_in"] = True
                 st.session_state["user_role"] = "Guest"
                 st.rerun()
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True) # Close opaque card
 
-    # Stop execution so dashboard doesn't render below
+    # 🚨 Important: Stop execution on login screen
     st.stop()
 
 
 # ==============================================================================
-# --- MAIN DASHBOARD (Visible AFTER Login) ---
+# --- MAIN DASHBOARD (Visible AFTER Login/Guest selection) ---
 # ==============================================================================
+
+# Sidebar Settings (visible after login)
 st.sidebar.title("🔐 Access Control")
 st.sidebar.write(f"Logged in as: **{st.session_state['user_role']}**")
 
@@ -198,12 +286,15 @@ if st.sidebar.button("Logout"):
     st.session_state["user_role"] = "Guest"
     st.rerun()
 
-st.title("🏢 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
-st.caption("Complete Educational Management Suite with Advanced Analytics (Cloud Database).")
+# ------------------------------------------------------------------------------
+# AAPKA DASHBOARD CODE (Keep your actual dashboard code here)
+# ------------------------------------------------------------------------------
+st.title("🏫 School Performance & Real-time Statistics")
 st.markdown("---")
 
+# Data Edit Option check
 if is_admin():
-    st.success("✅ Admin Control Enabled: Aap yahan student/teacher data edit ya upload kar sakte hain.")
+    st.success("✅ Admin Rights Active: Aap yahan student, teacher ya payment details add/edit kar sakte hain.")
 
 
 # --- SIDEBAR NAVIGATION ---
