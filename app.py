@@ -171,7 +171,7 @@ def set_background(image_name):
         st.error(f"❌ Image '{image_name}' GitHub folder me nahi mili! Kripya check karein ki file exact GitHub me uploaded hai ya nahi.")
 
 # Call function with new filename
-set_background('school.png')
+set_background('hello.png')
 
 # ==============================================================================
 # --- SESSION STATE INITIALIZATION ---
