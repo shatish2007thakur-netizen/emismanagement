@@ -19,59 +19,166 @@ def get_supabase_client() -> Client:
 
 supabase = get_supabase_client()
 
-# --- APP CONFIGURATION ---
-st.set_page_config(
-    page_title="JANTA EMIS", page_icon="🏢", layout="wide"
-)
-st.title("🏢 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
-st.write("Complete Educational Management Suite with Advanced Analytics (Cloud Database).")
 
+import streamlit as st
 
 # ==============================================================================
-# --- 🔐 STEP 2 & 3: ADMIN ACCESS CONTROL LOGIC ---
+# --- 🏢 APP CONFIGURATION ---
+# ==============================================================================
+st.set_page_config(
+    page_title="JANTA EMIS", 
+    page_icon="🏢", 
+    layout="wide"
+)
+
+# ==============================================================================
+# --- CUSTOM CSS FOR IEMIS STYLE LOGIN ---
+# ==============================================================================
+st.markdown("""
+<style>
+    /* Background style */
+    .stApp {
+        background-color: #f4f6f9;
+    }
+    
+    /* Login Card Container */
+    .login-card {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        margin-top: 20px;
+    }
+
+    /* Left Branding Section */
+    .sub-title {
+        color: #475569;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+    .contact-info {
+        font-size: 13px;
+        color: #64748b;
+        line-height: 1.8;
+    }
+
+    /* Login Form Section */
+    .login-title {
+        color: #4318FF;
+        font-size: 26px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    /* Primary Button Styling */
+    div.stButton > button {
+        background-color: #5b50d6;
+        color: white;
+        border-radius: 6px;
+        height: 45px;
+        width: 100%;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+    }
+    div.stButton > button:hover {
+        background-color: #4318FF;
+        color: white;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ==============================================================================
+# --- SESSION STATE INITIALIZATION ---
 # ==============================================================================
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 if "user_role" not in st.session_state:
-    st.session_state["user_role"] = "Guest"  # By default sabhi user 'Guest' honge
+    st.session_state["user_role"] = "Guest"
 
-st.sidebar.title("🔐 Access Control")
-
-if not st.session_state["logged_in"]:
-    login_type = st.sidebar.radio("Select View Mode", ["Public / Read-Only", "Admin Login"])
-    
-    if login_type == "Admin Login":
-        username = st.sidebar.text_input("Username")
-        password = st.sidebar.text_input("Password", type="password")
-        
-        if st.sidebar.button("Login as Admin"):
-            # Secrets se username aur password match karega
-            if "credentials" in st.secrets and username == st.secrets["credentials"]["admin_username"] and password == st.secrets["credentials"]["admin_password"]:
-                st.session_state["logged_in"] = True
-                st.session_state["user_role"] = "Admin"
-                st.sidebar.success("Welcome Back, Admin!")
-                st.rerun()
-            else:
-                st.sidebar.error("Invalid Username or Password! (Ya Secrets configure nahi hain)")
+# ==============================================================================
+# --- HELPER FUNCTION FOR ACCESS CONTROL ---
+# ==============================================================================
+def is_admin():
+    if st.session_state["user_role"] == "Admin":
+        return True
     else:
-        st.sidebar.info("🌐 Status: Read-Only Mode (View Data Only)")
+        st.error("🛑 Access Denied: Sirf Admin hi data add, edit ya change kar sakta hai. Aap sirf view kar sakte hain.")
+        return False
+
+# ==============================================================================
+# --- LOGIN PAGE / DASHBOARD VIEW ---
+# ==============================================================================
+if not st.session_state["logged_in"]:
+    # Center login card on screen
+    col1, center_col, col3 = st.columns([1, 4, 1])
+
+    with center_col:
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        
+        # Split card into Left (Logo & Info) and Right (Login Form)
+        left_col, divider, right_col = st.columns([1.2, 0.1, 1.2])
+
+        # --- LEFT COLUMN: BRANDING & INFO ---
+        with left_col:
+            st.markdown("### 🏢 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
+            st.markdown("<p class='sub-title'>Complete Educational Management Suite with Advanced Analytics (Cloud Database).</p>", unsafe_allow_html=True)
+            
+            st.markdown("""
+            <div class="contact-info">
+                📞 <b>Phone:</b> 977-1-6638704<br>
+                🎧 <b>Support:</b> +9779709089702<br>
+                ✉️ <b>Email:</b> support@jantaemis.edu.np
+            </div>
+            """, unsafe_allow_html=True)
+
+        # --- CENTER DIVIDER ---
+        with divider:
+            st.markdown("<div style='border-left: 2px solid #cbd5e1; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
+
+        # --- RIGHT COLUMN: LOGIN FORM ---
+        with right_col:
+            st.markdown('<div class="login-title">Login</div>', unsafe_allow_html=True)
+            
+            username = st.text_input("Username*", placeholder="Enter Username")
+            password = st.text_input("Password*", type="password", placeholder="Password")
+            
+            if st.button("Login"):
+                # Secret TOML file se credentials check
+                if "credentials" in st.secrets and \
+                   username == st.secrets["credentials"]["admin_username"] and \
+                   password == st.secrets["credentials"]["admin_password"]:
+                    
+                    st.session_state["logged_in"] = True
+                    st.session_state["user_role"] = "Admin"
+                    st.success("Welcome Back, Admin!")
+                    st.rerun()
+                else:
+                    st.error("Invalid Username or Password! (Secrets configure nahi hain ya galat hain)")
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
 else:
+    # ==============================================================================
+    # --- LOGGED IN DASHBOARD ---
+    # ==============================================================================
+    st.sidebar.title("🔐 Access Control")
     st.sidebar.write(f"Logged in as: **{st.session_state['user_role']}**")
+    
     if st.sidebar.button("Logout"):
         st.session_state["logged_in"] = False
         st.session_state["user_role"] = "Guest"
         st.rerun()
 
-st.sidebar.markdown("---")
+    # App Main Title & Subtitle
+    st.title("🏢 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
+    st.caption("Complete Educational Management Suite with Advanced Analytics (Cloud Database).")
+    st.markdown("---")
 
-# Helper function to check admin rights
-def is_admin():
-    if st.session_state["user_role"] == "Admin":
-        return True
-    else:
-        st.error("🛑 Access Denied: Sirf Admin hi data add, edit ya change kar sakta hai. Aap sirf view kar sakte hai.")
-        return False
-
+    # Access Check Test
+    if is_admin():
+        st.success("✅ Admin Access Granted: Aap yahan data add, edit aur update kar sakte hain.")
 
 # --- SIDEBAR NAVIGATION ---
 menu = [
