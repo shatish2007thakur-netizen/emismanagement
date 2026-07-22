@@ -38,7 +38,7 @@ st.set_page_config(
 # --- DIRECT URL BACKGROUND LOADER ---
 # ==============================================================================
 # 🎯 PostImage Direct Link Integrated Here:
-BACKGROUND_IMAGE_URL = "https://raw.githubusercontent.com/shatish2007thakur-netizen/<emismanagement>/main/hello.png"
+BACKGROUND_IMAGE_URL = ""C:\Users\satis\OneDrive\Desktop\hello.png""
 
 def set_background_url(url):
     page_bg_img = f'''
