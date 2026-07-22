@@ -22,6 +22,7 @@ def get_supabase_client() -> Client:
 
 supabase = get_supabase_client()
 
+import streamlit as st
 
 # ==============================================================================
 # --- 🏢 APP CONFIGURATION ---
@@ -34,51 +35,67 @@ st.set_page_config(
 )
 
 # ==============================================================================
-# --- BACKGROUND IMAGE LOADER (Automatic Path Detection) ---
+# --- DIRECT URL BACKGROUND LOADER (100% NO ERROR) ---
 # ==============================================================================
-def set_background(image_filename):
-    # Local Desktop path (Agar aap local PC par testing kar rahe ho)
-    local_path = r"C:\Users\satis\OneDrive\Desktop\hello.png"
-    
-    # Relative path (Jab file GitHub Repo me ho)
-    repo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), image_filename)
-    
-    final_path = None
-    if os.path.exists(repo_path):
-        final_path = repo_path
-    elif os.path.exists(local_path):
-        final_path = local_path
+# 🎯 Yahan PostImage se mila hua DIRECT LINK paste karein:
+BACKGROUND_IMAGE_URL = "https://i.postimg.cc/xyz123/hello.png"  # <-- Is link ko apne uploaded direct link se replace karein!
 
-    if final_path:
-        with open(final_path, 'rb') as f:
-            data = f.read()
-        bin_str = base64.b64encode(data).decode()
-        
-        st.markdown(f'''
-        <style>
-        .stApp {{
-            background-image: url("data:image/png;base64,{bin_str}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }}
-        [data-testid="stHeader"] {{display: none;}}
-        
-        .login-card-left {{
-            background-color: rgba(255, 255, 255, 0.92);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
-            border: 1px solid #cbd5e1;
-        }}
-        </style>
-        ''', unsafe_allow_html=True)
-    else:
-        st.error("❌ Background image nahi mili. Kripya 'hello.png' ko GitHub repository me upload karein.")
+def set_background_url(url):
+    page_bg_img = f'''
+    <style>
+    .stApp {{
+        background-image: url("{url}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }}
+    
+    [data-testid="stHeader"] {{display: none;}}
+    
+    .login-card-left {{
+        background-color: rgba(255, 255, 255, 0.92);
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+        border: 1px solid #cbd5e1;
+    }}
+    
+    .header-title {{
+        color: #1e293b;
+        font-size: 20px;
+        font-weight: 700;
+    }}
+    
+    .login-title-right {{
+        color: #4318FF;
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }}
+    
+    div.stButton > button {{
+        background-color: #4318FF;
+        color: white;
+        border-radius: 6px;
+        height: 45px;
+        width: 100%;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        margin-top: 10px;
+    }}
+    
+    div.stButton > button:hover {{
+        background-color: #3311cc;
+        color: white;
+    }}
+    </style>
+    '''
+    st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# Call function
-set_background('hello.png')
+# Function Call
+set_background_url(BACKGROUND_IMAGE_URL)
 
 # ==============================================================================
 # --- SESSION STATE INITIALIZATION ---
@@ -187,7 +204,6 @@ st.markdown("---")
 
 if is_admin():
     st.success("✅ Admin Control Enabled: Aap yahan student/teacher data edit ya upload kar sakte hain.")
-
 # --- SIDEBAR NAVIGATION ---
 menu = [
     "Dashboard Overview",
