@@ -139,7 +139,7 @@ def set_background(image_name):
         st.warning(f"⚠️ Image '{image_name}' GitHub repo me nahi mili. Direct background display ho raha hai.")
 
 # Call function with exact filename
-set_background('schoo photo1.jpg')
+set_background('schoo photo1.png')
 
 # ==============================================================================
 # --- SESSION STATE INITIALIZATION ---
