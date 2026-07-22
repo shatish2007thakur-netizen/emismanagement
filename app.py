@@ -20,8 +20,6 @@ def get_supabase_client() -> Client:
 supabase = get_supabase_client()
 
 
-import streamlit as st
-
 # ==============================================================================
 # --- 🏢 APP CONFIGURATION ---
 # ==============================================================================
@@ -54,10 +52,9 @@ def is_admin():
 # --- FULL SCREEN IEMIS LOGIN PAGE ONLY ---
 # ==============================================================================
 if not st.session_state["logged_in"]:
-    # Professional CSS Styling
+    # 🎨 PERFECT HIGH-CONTRAST COLOR SCHEME
     st.markdown("""
     <style>
-        /* Import Google Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         html, body, [class*="css"] {
@@ -67,33 +64,33 @@ if not st.session_state["logged_in"]:
         [data-testid="stSidebar"] {display: none;}
         [data-testid="stHeader"] {display: none;}
         
-        /* Modern Soft Mesh Background */
+        /* Premium Soothing Professional Background */
         .stApp {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
         }
         
         .block-container {
-            padding-top: 5rem;
+            padding-top: 4rem;
             padding-bottom: 2rem;
         }
 
-        /* Glassmorphism Card Effect */
+        /* Solid Crisp White Card with Subtle Drop Shadow */
         .login-card {
-            background-color: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(10px);
+            background-color: #ffffff;
             padding: 40px;
             border-radius: 16px;
-            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0px 15px 35px rgba(15, 23, 42, 0.08);
+            border: 1px solid #cbd5e1;
         }
 
         .govt-badge {
-            background-color: #e0e7ff;
-            color: #3730a3;
+            background-color: #eff6ff;
+            color: #1d4ed8;
             font-size: 11px;
             font-weight: 700;
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 20px;
+            border: 1px solid #bfdbfe;
             letter-spacing: 0.5px;
             text-transform: uppercase;
             display: inline-block;
@@ -101,19 +98,19 @@ if not st.session_state["logged_in"]:
         }
 
         .header-title {
-            color: #0f172a;
-            font-size: 21px;
+            color: #0f172a; /* Extra Dark Blue-Black for Best Readability */
+            font-size: 20px;
             font-weight: 700;
-            line-height: 1.3;
+            line-height: 1.35;
             margin-bottom: 12px;
         }
         
         .sub-title {
-            color: #475569;
+            color: #334155;
             font-size: 13.5px;
             line-height: 1.6;
             margin-bottom: 20px;
-            border-left: 3px solid #3b82f6;
+            border-left: 3px solid #2563eb;
             padding-left: 10px;
         }
 
@@ -123,47 +120,55 @@ if not st.session_state["logged_in"]:
             padding: 12px 15px;
             border-radius: 8px;
             font-size: 12.5px;
-            color: #64748b;
+            color: #475569;
             line-height: 1.8;
         }
 
         .login-title {
-            color: #1e40af;
+            color: #1e3a8a; /* Deep Royal Navy Blue */
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 20px;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.3px;
         }
 
-        /* Input Styling */
+        /* Input Fields: Clear Borders and Dark Text */
+        .stTextInput label {
+            color: #0f172a !important;
+            font-weight: 600 !important;
+        }
+
         .stTextInput > div > div > input {
             border-radius: 8px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #94a3b8;
             padding: 10px 14px;
             font-size: 14px;
+            color: #0f172a;
+            background-color: #ffffff;
         }
+        
         .stTextInput > div > div > input:focus {
             border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
         /* Primary Button */
         div.stButton > button {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
+            background-color: #2563eb;
+            color: #ffffff;
             border-radius: 8px;
-            height: 44px;
+            height: 45px;
             width: 100%;
             font-size: 15px;
             font-weight: 600;
             border: none;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
             transition: all 0.2s ease-in-out;
         }
+        
         div.stButton > button:hover {
-            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-            transform: translateY(-1px);
+            background-color: #1d4ed8;
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
         }
     </style>
     """, unsafe_allow_html=True)
@@ -200,7 +205,7 @@ if not st.session_state["logged_in"]:
 
         # --- CENTER DIVIDER ---
         with divider:
-            st.markdown("<div style='border-left: 1.5px solid #e2e8f0; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='border-left: 1.5px solid #cbd5e1; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
 
         # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
@@ -232,7 +237,7 @@ if not st.session_state["logged_in"]:
 
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Login screen show karne ke baad code aage nahi chalega
+    # Login screen stop
     st.stop()
 
 
@@ -267,6 +272,8 @@ st.markdown("---")
 # Data Edit Option check
 if is_admin():
     st.success("✅ Admin Rights Active: Aap yahan student, teacher ya payment details add/edit kar sakte hain.")
+
+
 # --- SIDEBAR NAVIGATION ---
 menu = [
     "Dashboard Overview",
