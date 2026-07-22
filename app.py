@@ -20,11 +20,13 @@ def get_supabase_client() -> Client:
 supabase = get_supabase_client()
 
 
+import streamlit as st
+
 # ==============================================================================
 # --- 🏢 APP CONFIGURATION ---
 # ==============================================================================
 st.set_page_config(
-    page_title="JANTA EMIS", 
+    page_title="JANTA EMIS Portal", 
     page_icon="🏢", 
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -52,75 +54,122 @@ def is_admin():
 # --- FULL SCREEN IEMIS LOGIN PAGE ONLY ---
 # ==============================================================================
 if not st.session_state["logged_in"]:
-    # Custom CSS: Hide Sidebar & Streamlit Header on Login Screen
+    # Professional CSS Styling
     st.markdown("""
     <style>
+        /* Import Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        html, body, [class*="css"] {
+            font-family: 'Inter', sans-serif;
+        }
+
         [data-testid="stSidebar"] {display: none;}
         [data-testid="stHeader"] {display: none;}
         
+        /* Modern Soft Mesh Background */
         .stApp {
-            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
         }
         
         .block-container {
-            padding-top: 4rem;
+            padding-top: 5rem;
             padding-bottom: 2rem;
         }
 
+        /* Glassmorphism Card Effect */
         .login-card {
-            background-color: #ffffff;
-            padding: 35px;
-            border-radius: 12px;
-            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
-            border: 1px solid #e2e8f0;
+            background-color: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .govt-badge {
+            background-color: #e0e7ff;
+            color: #3730a3;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 12px;
         }
 
         .header-title {
-            color: #1e293b;
-            font-size: 20px;
+            color: #0f172a;
+            font-size: 21px;
             font-weight: 700;
-            margin-bottom: 10px;
+            line-height: 1.3;
+            margin-bottom: 12px;
         }
         
         .sub-title {
             color: #475569;
-            font-size: 14px;
+            font-size: 13.5px;
             line-height: 1.6;
             margin-bottom: 20px;
+            border-left: 3px solid #3b82f6;
+            padding-left: 10px;
         }
 
-        .contact-info {
-            font-size: 13px;
+        .contact-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 12.5px;
             color: #64748b;
-            line-height: 2;
+            line-height: 1.8;
         }
 
         .login-title {
-            color: #4318FF;
-            font-size: 26px;
+            color: #1e40af;
+            font-size: 24px;
             font-weight: 700;
             margin-bottom: 20px;
+            letter-spacing: -0.5px;
         }
 
+        /* Input Styling */
+        .stTextInput > div > div > input {
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            padding: 10px 14px;
+            font-size: 14px;
+        }
+        .stTextInput > div > div > input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Primary Button */
         div.stButton > button {
-            background-color: #4318FF;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: white;
-            border-radius: 6px;
-            height: 45px;
+            border-radius: 8px;
+            height: 44px;
             width: 100%;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             border: none;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            transition: all 0.2s ease-in-out;
         }
         div.stButton > button:hover {
-            background-color: #3311cc;
-            color: white;
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+            transform: translateY(-1px);
         }
     </style>
     """, unsafe_allow_html=True)
 
     # Center Login Card on Screen
-    _, center_col, _ = st.columns([0.5, 3, 0.5])
+    _, center_col, _ = st.columns([0.4, 3.2, 0.4])
 
     with center_col:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
@@ -129,6 +178,7 @@ if not st.session_state["logged_in"]:
 
         # --- LEFT COLUMN: BRANDING ---
         with left_col:
+            st.markdown('<span class="govt-badge">Official Portal</span>', unsafe_allow_html=True)
             st.markdown('<div class="header-title">🇳🇵 Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
             
             st.markdown("""
@@ -141,7 +191,7 @@ if not st.session_state["logged_in"]:
             """, unsafe_allow_html=True)
             
             st.markdown("""
-            <div class="contact-info">
+            <div class="contact-box">
                 📞 <b>Phone:</b> 977-1-6638704<br>
                 🎧 <b>Support:</b> +9779709089702<br>
                 ✉️ <b>Email:</b> iemis@cehrd.gov.np
@@ -150,18 +200,18 @@ if not st.session_state["logged_in"]:
 
         # --- CENTER DIVIDER ---
         with divider:
-            st.markdown("<div style='border-left: 2px solid #e2e8f0; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='border-left: 1.5px solid #e2e8f0; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
 
         # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
-            st.markdown('<div class="login-title">Login</div>', unsafe_allow_html=True)
+            st.markdown('<div class="login-title">Account Login</div>', unsafe_allow_html=True)
             
             username = st.text_input("Username*", placeholder="Enter Username")
             password = st.text_input("Password*", type="password", placeholder="Password")
             
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
             
-            if st.button("Login"):
+            if st.button("🔐 Login to Portal"):
                 if "credentials" in st.secrets and \
                    username == st.secrets["credentials"]["admin_username"] and \
                    password == st.secrets["credentials"]["admin_password"]:
@@ -170,7 +220,9 @@ if not st.session_state["logged_in"]:
                     st.session_state["user_role"] = "Admin"
                     st.rerun()
                 else:
-                    st.error("Invalid Username or Password!")
+                    st.error("❌ Invalid Username or Password!")
+
+            st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
             # Guest / Public Read-Only Button
             if st.button("🌐 Continue as Guest (Read-Only)", key="guest_btn"):
@@ -180,12 +232,12 @@ if not st.session_state["logged_in"]:
 
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # 🚨 SABSE IMPORTANT LINE: Login screen show karne ke baad code aage nahi chalega!
+    # Login screen show karne ke baad code aage nahi chalega
     st.stop()
 
 
 # ==============================================================================
-# --- MAIN DASHBOARD (Aapka Sara Existing Dashboard Code Yahan Aayega) ---
+# --- MAIN DASHBOARD ---
 # ==============================================================================
 
 # Sidebar Settings
@@ -198,11 +250,11 @@ if st.sidebar.button("Logout"):
     st.rerun()
 
 # ------------------------------------------------------------------------------
-# AAPKA DASHBOARD CODE (Iske niche apna School Performance / Metrics code dalein)
+# AAPKA DASHBOARD CODE
 # ------------------------------------------------------------------------------
 st.title("🏫 School Performance & Real-time Statistics")
 
-# Example Metrics (Is jagah aapka purana dashboard code rahega)
+# Metrics Display
 col1, col2, col3, col4, col5 = st.columns(5)
 col1.metric("Total Students", "17")
 col2.metric("Active Teachers", "6")
@@ -215,7 +267,6 @@ st.markdown("---")
 # Data Edit Option check
 if is_admin():
     st.success("✅ Admin Rights Active: Aap yahan student, teacher ya payment details add/edit kar sakte hain.")
-
 # --- SIDEBAR NAVIGATION ---
 menu = [
     "Dashboard Overview",
