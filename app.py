@@ -2,6 +2,8 @@ import datetime
 import pandas as pd
 import streamlit as st
 from supabase import create_client, Client
+import base64
+from PIL import Image
 
 # ==============================================================================
 # --- SUPABASE CONFIGURATION (Now Fully Secured via Secrets) ---
@@ -20,7 +22,6 @@ def get_supabase_client() -> Client:
 supabase = get_supabase_client()
 
 
-
 # ==============================================================================
 # --- 🏢 APP CONFIGURATION ---
 # ==============================================================================
@@ -30,6 +31,87 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+# ==============================================================================
+# --- HELPER: FUNCTION TO SET BACKGROUND IMAGE ---
+# ==============================================================================
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+def set_background(png_file):
+    bin_str = get_base64_of_bin_file(png_file)
+    page_bg_img = '''
+    <style>
+    .stApp {
+        background-image: url("data:image/jpeg;base64,%s");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+    
+    /* Login Page CSS modifications for readability on background */
+    [data-testid="stHeader"] {display: none;}
+    
+    .login-card-left {
+        background-color: rgba(255, 255, 255, 0.9); /* Add opacity for text readability */
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .login-title-right {
+        color: #4318FF;
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+    
+    .sub-title, .contact-info, .header-title {
+        color: #1e293b; /* Dark text for contrast */
+    }
+    
+    div.stButton > button {
+        background-color: #4318FF;
+        color: white;
+        border-radius: 6px;
+        height: 45px;
+        width: 100%;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        margin-top: 10px;
+    }
+    
+    div.stButton > button:hover {
+        background-color: #3311cc;
+        color: white;
+    }
+    
+    /* Login Input fields on background */
+    [data-testid="stTextInput"] > div > div > input, [data-testid="stTextInput"] > div > label {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        color: #1e293b !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Center divider on image */
+    .divider-line {
+        border-left: 2px solid rgba(255, 255, 255, 0.5); 
+        height: 100%; 
+        margin: 0 auto;
+    }
+    </style>
+    ''' % bin_str
+    st.markdown(page_bg_img, unsafe_allow_html=True)
+
+# ==============================================================================
+# --- SET BACKGROUND IMAGE ---
+# ==============================================================================
+# Use your provided school photo
+set_background('schoo photo1.jpg') 
 
 # ==============================================================================
 # --- SESSION STATE INITIALIZATION ---
@@ -50,82 +132,25 @@ def is_admin():
         return False
 
 # ==============================================================================
-# --- FULL SCREEN IEMIS LOGIN PAGE ONLY ---
+# --- LOGIN PAGE ONLY (Dashboard hidden on image) ---
 # ==============================================================================
 if not st.session_state["logged_in"]:
-    # Custom CSS: Hide Sidebar & Streamlit Header on Login Screen
+    # Custom CSS to hide sidebar on login screen only
     st.markdown("""
     <style>
         [data-testid="stSidebar"] {display: none;}
-        [data-testid="stHeader"] {display: none;}
-        
-        .stApp {
-            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-        }
-        
-        .block-container {
-            padding-top: 4rem;
-            padding-bottom: 2rem;
-        }
-
-        .login-card {
-            background-color: #ffffff;
-            padding: 35px;
-            border-radius: 12px;
-            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
-            border: 1px solid #e2e8f0;
-        }
-
-        .header-title {
-            color: #1e293b;
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        
-        .sub-title {
-            color: #475569;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .contact-info {
-            font-size: 13px;
-            color: #64748b;
-            line-height: 2;
-        }
-
-        .login-title {
-            color: #4318FF;
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        div.stButton > button {
-            background-color: #4318FF;
-            color: white;
-            border-radius: 6px;
-            height: 45px;
-            width: 100%;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
-        }
-        div.stButton > button:hover {
-            background-color: #3311cc;
-            color: white;
-        }
     </style>
     """, unsafe_allow_html=True)
 
     # Center Login Card on Screen
+    st.markdown('<br><br>', unsafe_allow_html=True) # Upper space
     _, center_col, _ = st.columns([0.5, 3, 0.5])
 
     with center_col:
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        # Main opaque card container for text readability
+        st.markdown('<div class="login-card-left">', unsafe_allow_html=True)
         
+        # Split card into Left (Branding) and Right (Login Form)
         left_col, divider, right_col = st.columns([1.3, 0.1, 1.2])
 
         # --- LEFT COLUMN: BRANDING ---
@@ -151,18 +176,20 @@ if not st.session_state["logged_in"]:
 
         # --- CENTER DIVIDER ---
         with divider:
-            st.markdown("<div style='border-left: 2px solid #e2e8f0; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
+            st.markdown('<div class="divider-line"></div>', unsafe_allow_html=True)
 
         # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
-            st.markdown('<div class="login-title">Login</div>', unsafe_allow_html=True)
+            st.markdown('<div class="login-title-right">Login</div>', unsafe_allow_html=True)
             
-            username = st.text_input("Username*", placeholder="Enter Username")
-            password = st.text_input("Password*", type="password", placeholder="Password")
+            # Form with input labels for clear visibility
+            with st.form("login_form"):
+                username = st.text_input("Username*", placeholder="Enter Username")
+                password = st.text_input("Password*", type="password", placeholder="Password")
+                login_btn = st.form_submit_button("Login")
             
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            if st.button("Login"):
+            # Handle Login logic
+            if login_btn:
                 if "credentials" in st.secrets and \
                    username == st.secrets["credentials"]["admin_username"] and \
                    password == st.secrets["credentials"]["admin_password"]:
@@ -173,23 +200,25 @@ if not st.session_state["logged_in"]:
                 else:
                     st.error("Invalid Username or Password!")
 
+            st.markdown('<br>', unsafe_allow_html=True)
+            
             # Guest / Public Read-Only Button
             if st.button("🌐 Continue as Guest (Read-Only)", key="guest_btn"):
                 st.session_state["logged_in"] = True
                 st.session_state["user_role"] = "Guest"
                 st.rerun()
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True) # Close opaque card
 
-    # 🚨 SABSE IMPORTANT LINE: Login screen show karne ke baad code aage nahi chalega!
+    # 🚨 Important: Stop execution on login screen
     st.stop()
 
 
 # ==============================================================================
-# --- MAIN DASHBOARD (Aapka Sara Existing Dashboard Code Yahan Aayega) ---
+# --- MAIN DASHBOARD (Visible AFTER Login/Guest selection) ---
 # ==============================================================================
 
-# Sidebar Settings
+# Sidebar Settings (visible after login)
 st.sidebar.title("🔐 Access Control")
 st.sidebar.write(f"Logged in as: **{st.session_state['user_role']}**")
 
@@ -199,18 +228,9 @@ if st.sidebar.button("Logout"):
     st.rerun()
 
 # ------------------------------------------------------------------------------
-# AAPKA DASHBOARD CODE (Iske niche apna School Performance / Metrics code dalein)
+# AAPKA DASHBOARD CODE (Keep your actual dashboard code here)
 # ------------------------------------------------------------------------------
 st.title("🏫 School Performance & Real-time Statistics")
-
-# Example Metrics (Is jagah aapka purana dashboard code rahega)
-col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric("Total Students", "17")
-col2.metric("Active Teachers", "6")
-col3.metric("Total Revenue", "₹37,750.00")
-col4.metric("Total Expenses", "₹29,200.00", delta="-₹29,200")
-col5.metric("Net Balance (Wallet)", "₹8,550.00")
-
 st.markdown("---")
 
 # Data Edit Option check
