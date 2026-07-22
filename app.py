@@ -20,74 +20,15 @@ def get_supabase_client() -> Client:
 supabase = get_supabase_client()
 
 
-import streamlit as st
-
 # ==============================================================================
 # --- 🏢 APP CONFIGURATION ---
 # ==============================================================================
 st.set_page_config(
     page_title="JANTA EMIS", 
     page_icon="🏢", 
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"  # Login page par sidebar auto-collapse rahega
 )
-
-# ==============================================================================
-# --- CUSTOM CSS FOR IEMIS STYLE LOGIN ---
-# ==============================================================================
-st.markdown("""
-<style>
-    /* Background style */
-    .stApp {
-        background-color: #f4f6f9;
-    }
-    
-    /* Login Card Container */
-    .login-card {
-        background-color: #ffffff;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e2e8f0;
-        margin-top: 20px;
-    }
-
-    /* Left Branding Section */
-    .sub-title {
-        color: #475569;
-        font-size: 14px;
-        margin-bottom: 15px;
-    }
-    .contact-info {
-        font-size: 13px;
-        color: #64748b;
-        line-height: 1.8;
-    }
-
-    /* Login Form Section */
-    .login-title {
-        color: #4318FF;
-        font-size: 26px;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-
-    /* Primary Button Styling */
-    div.stButton > button {
-        background-color: #5b50d6;
-        color: white;
-        border-radius: 6px;
-        height: 45px;
-        width: 100%;
-        font-size: 16px;
-        font-weight: 600;
-        border: none;
-    }
-    div.stButton > button:hover {
-        background-color: #4318FF;
-        color: white;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 # ==============================================================================
 # --- SESSION STATE INITIALIZATION ---
@@ -104,38 +45,117 @@ def is_admin():
     if st.session_state["user_role"] == "Admin":
         return True
     else:
-        st.error("🛑 Access Denied: Sirf Admin hi data add, edit ya change kar sakta hai. Aap sirf view kar sakte hain.")
+        st.error("🛑 Access Denied: Sirf Admin hi data add, edit ya change kar sakta hai.")
         return False
 
 # ==============================================================================
-# --- LOGIN PAGE / DASHBOARD VIEW ---
+# --- FULL SCREEN IEMIS STYLE LOGIN PAGE ---
 # ==============================================================================
 if not st.session_state["logged_in"]:
-    # Center login card on screen
-    col1, center_col, col3 = st.columns([1, 4, 1])
+    # Custom CSS: Hide Sidebar & Header completely on Login Screen
+    st.markdown("""
+    <style>
+        /* Hide Streamlit Default Elements */
+        [data-testid="stSidebar"] {display: none;}
+        [data-testid="stHeader"] {display: none;}
+        
+        /* Background Styling */
+        .stApp {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        }
+        
+        /* Main Container Padding Fix */
+        .block-container {
+            padding-top: 5rem;
+            padding-bottom: 2rem;
+        }
+
+        /* IEMIS Card Layout */
+        .login-card {
+            background-color: #ffffff;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+        }
+
+        .header-title {
+            color: #1e293b;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .sub-title {
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .contact-info {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 2;
+        }
+
+        .login-title {
+            color: #4318FF;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* Primary Login Button */
+        div.stButton > button {
+            background-color: #4318FF;
+            color: white;
+            border-radius: 6px;
+            height: 45px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+        }
+        div.stButton > button:hover {
+            background-color: #3311cc;
+            color: white;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Center Login Card on Screen
+    _, center_col, _ = st.columns([0.5, 3, 0.5])
 
     with center_col:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
         
-        # Split card into Left (Logo & Info) and Right (Login Form)
-        left_col, divider, right_col = st.columns([1.2, 0.1, 1.2])
+        left_col, divider, right_col = st.columns([1.3, 0.1, 1.2])
 
-        # --- LEFT COLUMN: BRANDING & INFO ---
+        # --- LEFT COLUMN: BRANDING & DETAILS ---
         with left_col:
-            st.markdown("### 🏢 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
-            st.markdown("<p class='sub-title'>Complete Educational Management Suite with Advanced Analytics (Cloud Database).</p>", unsafe_allow_html=True)
+            st.markdown('<div class="header-title">🇳🇵 Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
+            
+            st.markdown("""
+            <div class="sub-title">
+                <b>नेपाल सरकार</b><br>
+                शिक्षा, विज्ञान तथा प्रविधि मन्त्रालय<br>
+                शिक्षा तथा मानवस्रोत विकास केन्द्र<br>
+                सानोठिमी, भक्तपुर
+            </div>
+            """, unsafe_allow_html=True)
             
             st.markdown("""
             <div class="contact-info">
                 📞 <b>Phone:</b> 977-1-6638704<br>
                 🎧 <b>Support:</b> +9779709089702<br>
-                ✉️ <b>Email:</b> support@jantaemis.edu.np
+                ✉️ <b>Email:</b> iemis@cehrd.gov.np
             </div>
             """, unsafe_allow_html=True)
 
         # --- CENTER DIVIDER ---
         with divider:
-            st.markdown("<div style='border-left: 2px solid #cbd5e1; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='border-left: 2px solid #e2e8f0; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
 
         # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
@@ -144,25 +164,32 @@ if not st.session_state["logged_in"]:
             username = st.text_input("Username*", placeholder="Enter Username")
             password = st.text_input("Password*", type="password", placeholder="Password")
             
+            st.markdown("<br>", unsafe_allow_html=True)
+            
             if st.button("Login"):
-                # Secret TOML file se credentials check
                 if "credentials" in st.secrets and \
                    username == st.secrets["credentials"]["admin_username"] and \
                    password == st.secrets["credentials"]["admin_password"]:
                     
                     st.session_state["logged_in"] = True
                     st.session_state["user_role"] = "Admin"
-                    st.success("Welcome Back, Admin!")
                     st.rerun()
                 else:
-                    st.error("Invalid Username or Password! (Secrets configure nahi hain ya galat hain)")
+                    st.error("Invalid Username or Password!")
+
+            # Optional: Guest / Public Read-Only Access Button
+            if st.button("🌐 Continue as Guest (Read-Only)", key="guest_btn"):
+                st.session_state["logged_in"] = True
+                st.session_state["user_role"] = "Guest"
+                st.rerun()
 
         st.markdown('</div>', unsafe_allow_html=True)
 
+# ==============================================================================
+# --- MAIN APP DASHBOARD (Only visible AFTER Login) ---
+# ==============================================================================
 else:
-    # ==============================================================================
-    # --- LOGGED IN DASHBOARD ---
-    # ==============================================================================
+    # Sidebar Access Control (Logged In State)
     st.sidebar.title("🔐 Access Control")
     st.sidebar.write(f"Logged in as: **{st.session_state['user_role']}**")
     
@@ -171,14 +198,16 @@ else:
         st.session_state["user_role"] = "Guest"
         st.rerun()
 
-    # App Main Title & Subtitle
+    # Main Dashboard UI
     st.title("🏢 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
     st.caption("Complete Educational Management Suite with Advanced Analytics (Cloud Database).")
     st.markdown("---")
 
-    # Access Check Test
+    # Access Check
     if is_admin():
-        st.success("✅ Admin Access Granted: Aap yahan data add, edit aur update kar sakte hain.")
+        st.success("✅ Welcome Admin! Full edit and management privileges unlocked.")
+    else:
+        st.info("ℹ️ Welcome Guest! You are in Read-Only Mode.")
 
 # --- SIDEBAR NAVIGATION ---
 menu = [
