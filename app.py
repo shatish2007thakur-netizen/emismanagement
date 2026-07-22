@@ -38,7 +38,7 @@ st.set_page_config(
 # --- DIRECT URL BACKGROUND LOADER (100% NO ERROR) ---
 # ==============================================================================
 # 🎯 Yahan PostImage se mila hua DIRECT LINK paste karein:
-BACKGROUND_IMAGE_URL = "https://i.postimg.cc/xyz123/hello.png"  # <-- Is link ko apne uploaded direct link se replace karein!
+BACKGROUND_IMAGE_URL = "https://i.postimg.cc/SNj21qJr/hello.png"  # <-- Is link ko apne uploaded direct link se replace karein!
 
 def set_background_url(url):
     page_bg_img = f'''
