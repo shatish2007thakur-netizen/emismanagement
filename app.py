@@ -20,6 +20,7 @@ def get_supabase_client() -> Client:
 supabase = get_supabase_client()
 
 
+
 # ==============================================================================
 # --- 🏢 APP CONFIGURATION ---
 # ==============================================================================
@@ -27,7 +28,7 @@ st.set_page_config(
     page_title="JANTA EMIS", 
     page_icon="🏢", 
     layout="wide",
-    initial_sidebar_state="collapsed"  # Login page par sidebar auto-collapse rahega
+    initial_sidebar_state="collapsed"
 )
 
 # ==============================================================================
@@ -49,28 +50,24 @@ def is_admin():
         return False
 
 # ==============================================================================
-# --- FULL SCREEN IEMIS STYLE LOGIN PAGE ---
+# --- FULL SCREEN IEMIS LOGIN PAGE ONLY ---
 # ==============================================================================
 if not st.session_state["logged_in"]:
-    # Custom CSS: Hide Sidebar & Header completely on Login Screen
+    # Custom CSS: Hide Sidebar & Streamlit Header on Login Screen
     st.markdown("""
     <style>
-        /* Hide Streamlit Default Elements */
         [data-testid="stSidebar"] {display: none;}
         [data-testid="stHeader"] {display: none;}
         
-        /* Background Styling */
         .stApp {
             background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
         }
         
-        /* Main Container Padding Fix */
         .block-container {
-            padding-top: 5rem;
+            padding-top: 4rem;
             padding-bottom: 2rem;
         }
 
-        /* IEMIS Card Layout */
         .login-card {
             background-color: #ffffff;
             padding: 35px;
@@ -81,7 +78,7 @@ if not st.session_state["logged_in"]:
 
         .header-title {
             color: #1e293b;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             margin-bottom: 10px;
         }
@@ -101,12 +98,11 @@ if not st.session_state["logged_in"]:
 
         .login-title {
             color: #4318FF;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
             margin-bottom: 20px;
         }
 
-        /* Primary Login Button */
         div.stButton > button {
             background-color: #4318FF;
             color: white;
@@ -132,7 +128,7 @@ if not st.session_state["logged_in"]:
         
         left_col, divider, right_col = st.columns([1.3, 0.1, 1.2])
 
-        # --- LEFT COLUMN: BRANDING & DETAILS ---
+        # --- LEFT COLUMN: BRANDING ---
         with left_col:
             st.markdown('<div class="header-title">🇳🇵 Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
             
@@ -177,7 +173,7 @@ if not st.session_state["logged_in"]:
                 else:
                     st.error("Invalid Username or Password!")
 
-            # Optional: Guest / Public Read-Only Access Button
+            # Guest / Public Read-Only Button
             if st.button("🌐 Continue as Guest (Read-Only)", key="guest_btn"):
                 st.session_state["logged_in"] = True
                 st.session_state["user_role"] = "Guest"
@@ -185,29 +181,41 @@ if not st.session_state["logged_in"]:
 
         st.markdown('</div>', unsafe_allow_html=True)
 
-# ==============================================================================
-# --- MAIN APP DASHBOARD (Only visible AFTER Login) ---
-# ==============================================================================
-else:
-    # Sidebar Access Control (Logged In State)
-    st.sidebar.title("🔐 Access Control")
-    st.sidebar.write(f"Logged in as: **{st.session_state['user_role']}**")
-    
-    if st.sidebar.button("Logout"):
-        st.session_state["logged_in"] = False
-        st.session_state["user_role"] = "Guest"
-        st.rerun()
+    # 🚨 SABSE IMPORTANT LINE: Login screen show karne ke baad code aage nahi chalega!
+    st.stop()
 
-    # Main Dashboard UI
-    st.title("🏢 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
-    st.caption("Complete Educational Management Suite with Advanced Analytics (Cloud Database).")
-    st.markdown("---")
 
-    # Access Check
-    if is_admin():
-        st.success("✅ Welcome Admin! Full edit and management privileges unlocked.")
-    else:
-        st.info("ℹ️ Welcome Guest! You are in Read-Only Mode.")
+# ==============================================================================
+# --- MAIN DASHBOARD (Aapka Sara Existing Dashboard Code Yahan Aayega) ---
+# ==============================================================================
+
+# Sidebar Settings
+st.sidebar.title("🔐 Access Control")
+st.sidebar.write(f"Logged in as: **{st.session_state['user_role']}**")
+
+if st.sidebar.button("Logout"):
+    st.session_state["logged_in"] = False
+    st.session_state["user_role"] = "Guest"
+    st.rerun()
+
+# ------------------------------------------------------------------------------
+# AAPKA DASHBOARD CODE (Iske niche apna School Performance / Metrics code dalein)
+# ------------------------------------------------------------------------------
+st.title("🏫 School Performance & Real-time Statistics")
+
+# Example Metrics (Is jagah aapka purana dashboard code rahega)
+col1, col2, col3, col4, col5 = st.columns(5)
+col1.metric("Total Students", "17")
+col2.metric("Active Teachers", "6")
+col3.metric("Total Revenue", "₹37,750.00")
+col4.metric("Total Expenses", "₹29,200.00", delta="-₹29,200")
+col5.metric("Net Balance (Wallet)", "₹8,550.00")
+
+st.markdown("---")
+
+# Data Edit Option check
+if is_admin():
+    st.success("✅ Admin Rights Active: Aap yahan student, teacher ya payment details add/edit kar sakte hain.")
 
 # --- SIDEBAR NAVIGATION ---
 menu = [
