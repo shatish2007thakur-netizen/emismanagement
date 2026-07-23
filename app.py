@@ -252,10 +252,26 @@ st.title("🏦 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
 st.caption("Complete Educational Management Suite with Advanced Analytics (Cloud Database)")
 
 st.markdown("<br>", unsafe_allow_html=True)
+    
+# ------------------------------------------------------------------------------
+# AAPKA DASHBOARD CODE
+# ------------------------------------------------------------------------------
+st.title("🏫 School Performance & Real-time Statistics")
 
-# Data Edit Option Check
-if st.session_state.get("user_role") == "Admin":
+# Metrics Display
+col1, col2, col3, col4, col5 = st.columns(5)
+col1.metric("Total Students", "17")
+col2.metric("Active Teachers", "6")
+col3.metric("Total Revenue", "₹37,750.00")
+col4.metric("Total Expenses", "₹29,200.00", delta="-₹29,200")
+col5.metric("Net Balance (Wallet)", "₹8,550.00")
+
+st.markdown("---")
+
+# Data Edit Option check
+if is_admin():
     st.success("✅ Admin Rights Active: Aap yahan student, teacher ya payment details add/edit kar sakte hain.")
+
 
 # --- SIDEBAR NAVIGATION ---
 menu = [
