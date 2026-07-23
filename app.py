@@ -162,6 +162,29 @@ if not st.session_state.get("logged_in", False):
             background-color: #1d4ed8;
             box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
         }
+        # Yeh CSS aapke Streamlit script ke shuru me hona chahiye (ya top per inject karein)
+st.markdown(
+    """
+    <style>
+    /* Contact Box styling */
+    .contact-box {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        padding: 16px;
+        border-radius: 10px;
+        margin-top: 12px;
+        color: #1e293b !important; /* Dark legible text color */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Header title fix */
+    .header-title {
+        color: #1e3a8a !important; /* Deep Blue color for readability over background */
+        font-size: 28px !important;
+        font-weight: 700 !important;
+        margin-top: 10px;
+        margin-bottom: 15px;
+        line-height: 1.3;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -173,28 +196,44 @@ if not st.session_state.get("logged_in", False):
         
         left_col, divider, right_col = st.columns([1.3, 0.1, 1.2])
 
-        # --- LEFT COLUMN: BRANDING ---
-        with left_col:
-            st.markdown('<span class="govt-badge">Official Portal</span>', unsafe_allow_html=True)
-            st.markdown('<div class="header-title" style="font-size: 32px; font-weight: bold;">NP Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True,)
-            
-            st.markdown("""
-            <div class="contact-box">
-                <b>नेपाल सरकार</b><br>
-                शिक्षा, विज्ञान तथा प्रविधि मन्त्रालय<br>
-                शिक्षा तथा मानवस्रोत विकास केन्द्र<br>
-                सानोठिमी, भक्तपुर
-            </div>
-            """, unsafe_allow_html=True)
-            
-            st.markdown("""
-            <div class="contact-box">
-                📞 <b>Phone:</b> 977-1-6638704<br>
-                🎧 <b>Support:</b> +9779709089702<br>
-                ✉️ <b>Email:</b> iemis@cehrd.gov.np
-            </div>
-            """, unsafe_allow_html=True)
+# --- LEFT COLUMN: BRANDING ---
+with left_col:
+    # Official Badge
+    st.markdown(
+        '<span class="govt-badge">Official Portal</span>',
+        unsafe_allow_html=True,
+    )
 
+    # Title with better visibility
+    st.markdown(
+        '<div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>',
+        unsafe_allow_html=True,
+    )
+
+    # Govt Info Box
+    st.markdown(
+        """
+        <div class="contact-box">
+            <span style="font-size: 18px; font-weight: bold; color: #000;">नेपाल सरकार</span><br>
+            <span style="color: #333;">शिक्षा, विज्ञान तथा प्रविधि मन्त्रालय</span><br>
+            <span style="color: #333;">शिक्षा तथा मानवस्रोत विकास केन्द्र</span><br>
+            <span style="color: #555; font-size: 14px;">सानोठिमी, भक्तपुर</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Contact Info Box
+    st.markdown(
+        """
+        <div class="contact-box">
+            📞 <b>Phone:</b> <span style="color: #333;">977-1-6638704</span><br>
+            🎧 <b>Support:</b> <span style="color: #333;">+9779709089702</span><br>
+            ✉️ <b>Email:</b> <span style="color: #333;">iemis@cehrd.gov.np</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
         # --- CENTER DIVIDER ---
         with divider:
             st.markdown("<div style='border-left: 1.5px solid #94a3b8; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
