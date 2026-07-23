@@ -183,9 +183,8 @@ if not st.session_state["logged_in"]:
 
         # --- LEFT COLUMN: BRANDING ---
         with left_col:
-            st.markdown('<div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
             st.markdown('<span class="govt-badge">Official Portal</span>', unsafe_allow_html=True)
-           
+            st.markdown('<div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
             
             st.markdown("""
             <div class="sub-title">
