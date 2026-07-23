@@ -253,27 +253,9 @@ st.caption("Complete Educational Management Suite with Advanced Analytics (Cloud
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ------------------------------------------------------------------------------
-# DASHBOARD STATS
-# ------------------------------------------------------------------------------
-st.header("🏫 School Performance & Real-time Statistics")
-
 # Data Edit Option Check
 if st.session_state.get("user_role") == "Admin":
     st.success("✅ Admin Rights Active: Aap yahan student, teacher ya payment details add/edit kar sakte hain.")
-
-st.subheader("📈 Real-time Key Metrics")
-
-# Metrics Display
-col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric("👥 Total Students", "17")
-col2.metric("🧑‍🏫 Active Teachers", "6")
-col3.metric("💰 Total Revenue", "₹38,750.00")
-col4.metric("💸 Total Expenses", "₹31,700.00", delta="-₹31,700")
-col5.metric("🏦 Net Balance (Wallet)", "₹7,050.00")
-
-st.markdown("---")
-
 
 # --- SIDEBAR NAVIGATION ---
 menu = [
