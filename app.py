@@ -225,8 +225,10 @@ if not st.session_state.get("logged_in", False):
             st.markdown(
                 """
             <div class="contact-box">
-                📞 <b>Head Teacher: Ram Niwas Chauhan:</b>Phone:📞 +977 9806928278<br>
-                🎧 <b>Coordinator, Computer Department: Ramesh Singh Yadav:</b>Phon:📞 +977 9810816071<br>
+                <b>Head Teacher: Ram Niwas Chauhan:</b>
+                <br>Phone:📞 +977 9806928278<br>
+                🎧 <b>Coordinator, Computer Department: Ramesh Singh Yadav</b>
+                <br>Phone:📞 +977 9810816071<br>
                 ✉️ <b>Email:jantamabi4@gmail.com</b> 
             </div>
             """,
