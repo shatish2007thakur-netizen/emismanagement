@@ -20,12 +20,36 @@ def get_supabase_client() -> Client:
 supabase = get_supabase_client()
 
 
+# --- HELPER FUNCTIONS ---
+def is_admin() -> bool:
+    """Check if current logged in user has Admin privileges."""
+    return st.session_state.get("user_role") == "Admin"
+
+
+def calculate_grade(percentage):
+    if percentage >= 90:
+        return "A+", 4.0, "Distinction"
+    elif percentage >= 80:
+        return "A", 3.6, "First Division"
+    elif percentage >= 70:
+        return "B+", 3.2, "First Division"
+    elif percentage >= 60:
+        return "B", 2.8, "Second Division"
+    elif percentage >= 50:
+        return "C+", 2.4, "Second Division"
+    elif percentage >= 40:
+        return "C", 2.0, "Third Division"
+    else:
+        return "F", 0.0, "Fail"
+
+
 # ==============================================================================
 # --- FULL SCREEN IEMIS LOGIN PAGE ONLY ---
 # ==============================================================================
 if not st.session_state.get("logged_in", False):
     # 🎨 PROFESSIONAL HIGH-CONTRAST GLASSMORPHISM STYLE
-    st.markdown("""
+    st.markdown(
+        """
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -114,6 +138,7 @@ if not st.session_state.get("logged_in", False):
             font-size: 12.5px;
             color: #334155;
             line-height: 1.8;
+            margin-bottom: 10px;
         }
 
         .login-title {
@@ -163,63 +188,92 @@ if not st.session_state.get("logged_in", False):
             box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
         }
     </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     # Center Login Card on Screen
     _, center_col, _ = st.columns([0.3, 3.4, 0.3])
 
     with center_col:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
-        
+
         left_col, divider, right_col = st.columns([1.3, 0.1, 1.2])
 
         # --- LEFT COLUMN: BRANDING ---
         with left_col:
-            st.markdown('<span class="govt-badge">Official Portal</span>', unsafe_allow_html=True)
-            st.markdown('<div class="header-title" style="font-size: 24px; font-weight: bold;">NP Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True,)
-            
-            st.markdown("""
+            st.markdown(
+                '<span class="govt-badge">Official Portal</span>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                '<div class="header-title" style="font-size: 24px; font-weight: bold;">NP Integrated Educational Management Information System (IEMIS)</div>',
+                unsafe_allow_html=True,
+            )
+
+            st.markdown(
+                """
             <div class="contact-box">
                 <b>नेपाल सरकार</b><br>
                 शिक्षा, विज्ञान तथा प्रविधि मन्त्रालय<br>
                 शिक्षा तथा मानवस्रोत विकास केन्द्र<br>
                 सानोठिमी, भक्तपुर
             </div>
-            """, unsafe_allow_html=True)
-            
-            st.markdown("""
+            """,
+                unsafe_allow_html=True,
+            )
+
+            st.markdown(
+                """
             <div class="contact-box">
                 📞 <b>Phone:</b> 977-1-6638704<br>
                 🎧 <b>Support:</b> +9779709089702<br>
                 ✉️ <b>Email:</b> iemis@cehrd.gov.np
             </div>
-            """, unsafe_allow_html=True)
+            """,
+                unsafe_allow_html=True,
+            )
 
         # --- CENTER DIVIDER ---
         with divider:
-            st.markdown("<div style='border-left: 1.5px solid #94a3b8; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
+            st.markdown(
+                "<div style='border-left: 1.5px solid #94a3b8; height: 100%; margin: 0 auto;'></div>",
+                unsafe_allow_html=True,
+            )
 
         # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
-            st.markdown('<div class="login-title">Account Login</div>', unsafe_allow_html=True)
-            
+            st.markdown(
+                '<div class="login-title">Account Login</div>',
+                unsafe_allow_html=True,
+            )
+
             username = st.text_input("Username*", placeholder="Enter Username")
-            password = st.text_input("Password*", type="password", placeholder="Password")
-            
-            st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
-            
+            password = st.text_input(
+                "Password*", type="password", placeholder="Password"
+            )
+
+            st.markdown(
+                "<div style='margin-bottom: 15px;'></div>",
+                unsafe_allow_html=True,
+            )
+
             if st.button("🔐 Login to Portal"):
-                if "credentials" in st.secrets and \
-                   username == st.secrets["credentials"]["admin_username"] and \
-                   password == st.secrets["credentials"]["admin_password"]:
-                    
+                if (
+                    "credentials" in st.secrets
+                    and username == st.secrets["credentials"]["admin_username"]
+                    and password == st.secrets["credentials"]["admin_password"]
+                ):
                     st.session_state["logged_in"] = True
                     st.session_state["user_role"] = "Admin"
                     st.rerun()
                 else:
                     st.error("❌ Invalid Username or Password!")
 
-            st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
+            st.markdown(
+                "<div style='margin-bottom: 10px;'></div>",
+                unsafe_allow_html=True,
+            )
 
             # Guest / Public Read-Only Button
             if st.button("🌐 Continue as Guest (Read-Only)", key="guest_btn"):
@@ -227,10 +281,11 @@ if not st.session_state.get("logged_in", False):
                 st.session_state["user_role"] = "Guest"
                 st.rerun()
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    # Login screen stop
+    # Stop rendering the rest of app until logged in
     st.stop()
+
 
 # ==============================================================================
 # --- MAIN DASHBOARD ---
@@ -238,40 +293,27 @@ if not st.session_state.get("logged_in", False):
 
 # Sidebar Settings
 st.sidebar.title("🔐 Access Control")
-st.sidebar.write(f"Logged in as: **{st.session_state.get('user_role', 'Guest')}**")
+st.sidebar.write(
+    f"Logged in as: **{st.session_state.get('user_role', 'Guest')}**"
+)
 
 if st.sidebar.button("Logout"):
     st.session_state["logged_in"] = False
     st.session_state["user_role"] = "Guest"
     st.rerun()
 
-# ------------------------------------------------------------------------------
-# 🏦 MAIN EMIS TITLE (FIXED HERE)
-# ------------------------------------------------------------------------------
+# --- MAIN EMIS TITLE ---
 st.title("🏦 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
-st.caption("Complete Educational Management Suite with Advanced Analytics (Cloud Database)")
-
+st.caption(
+    "Complete Educational Management Suite with Advanced Analytics (Cloud Database)"
+)
 st.markdown("<br>", unsafe_allow_html=True)
-    
-# ------------------------------------------------------------------------------
-# AAPKA DASHBOARD CODE
-# ------------------------------------------------------------------------------
-st.title("🏫 School Performance & Real-time Statistics")
-
-# Metrics Display
-col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric("Total Students", "17")
-col2.metric("Active Teachers", "6")
-col3.metric("Total Revenue", "₹37,750.00")
-col4.metric("Total Expenses", "₹29,200.00", delta="-₹29,200")
-col5.metric("Net Balance (Wallet)", "₹8,550.00")
-
-st.markdown("---")
 
 # Data Edit Option check
 if is_admin():
-    st.success("✅ Admin Rights Active: Aap yahan student, teacher ya payment details add/edit kar sakte hain.")
-
+    st.success(
+        "✅ Admin Rights Active: Aap yahan student, teacher ya payment details add/edit kar sakte hain."
+    )
 
 # --- SIDEBAR NAVIGATION ---
 menu = [
@@ -285,57 +327,61 @@ menu = [
 ]
 choice = st.sidebar.radio("EMIS Modules", menu)
 
-
-# Helper function for GPA and Division
-def calculate_grade(percentage):
-    if percentage >= 90:
-        return "A+", 4.0, "Distinction"
-    elif percentage >= 80:
-        return "A", 3.6, "First Division"
-    elif percentage >= 70:
-        return "B+", 3.2, "First Division"
-    elif percentage >= 60:
-        return "B", 2.8, "Second Division"
-    elif percentage >= 50:
-        return "C+", 2.4, "Second Division"
-    elif percentage >= 40:
-        return "C", 2.0, "Third Division"
-    else:
-        return "F", 0.0, "Fail"
-
 # --- DASHBOARD OVERVIEW BLOCK ---
 if choice == "Dashboard Overview":
-    st.title("🏫 School Performance & Real-time Statistics")
-    
-    try:
-        s_res = supabase.table("students").select("roll_no", count="exact").execute()
-        total_students = s_res.count if s_res.count else 0
-        
-        t_res = supabase.table("teachers").select("teacher_id", count="exact").execute()
-        total_teachers = t_res.count if t_res.count else 0
-        
-        bill_res = supabase.table("billing").select("amount").execute()
-        total_earnings = sum([float(row['amount']) for row in bill_res.data if row['amount'] is not None]) if bill_res.data else 0.0
-        
-        present_today = total_students
-        
-    except Exception as e:
-        st.error(f"Dashboard Load Error: {e}")
-        total_students, total_teachers, total_earnings, present_today = 0, 0, 0.0, 0
+    st.subheader("🏫 School Performance & Real-time Statistics")
 
-    total_expenses = 0.0
-    try:
-        exp_res = supabase.table("expenses").select("amount").execute()
-        if exp_res.data:
-            total_expenses = sum([float(row['amount']) for row in exp_res.data if row['amount'] is not None])
-    except Exception as e:
-        total_expenses = 0.0
+    total_students, total_teachers, total_earnings, total_expenses = (
+        0,
+        0,
+        0.0,
+        0.0,
+    )
+
+    if supabase:
+        try:
+            s_res = (
+                supabase.table("students")
+                .select("roll_no", count="exact")
+                .execute()
+            )
+            total_students = s_res.count if s_res.count else 0
+
+            t_res = (
+                supabase.table("teachers")
+                .select("teacher_id", count="exact")
+                .execute()
+            )
+            total_teachers = t_res.count if t_res.count else 0
+
+            bill_res = supabase.table("billing").select("amount").execute()
+            if bill_res.data:
+                total_earnings = sum(
+                    [
+                        float(row["amount"])
+                        for row in bill_res.data
+                        if row.get("amount") is not None
+                    ]
+                )
+
+            exp_res = supabase.table("expenses").select("amount").execute()
+            if exp_res.data:
+                total_expenses = sum(
+                    [
+                        float(row["amount"])
+                        for row in exp_res.data
+                        if row.get("amount") is not None
+                    ]
+                )
+
+        except Exception as e:
+            st.error(f"Dashboard Load Error: {e}")
 
     net_balance = total_earnings - total_expenses
 
     st.markdown("### 📈 Real-time Key Metrics")
     m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
-    
+
     with m_col1:
         st.metric(label="👥 Total Students", value=int(total_students))
     with m_col2:
@@ -343,9 +389,16 @@ if choice == "Dashboard Overview":
     with m_col3:
         st.metric(label="💰 Total Revenue", value=f"₹{total_earnings:,.2f}")
     with m_col4:
-        st.metric(label="💸 Total Expenses", value=f"₹{total_expenses:,.2f}", delta=f"-₹{total_expenses:,.0f}", delta_color="inverse")
+        st.metric(
+            label="💸 Total Expenses",
+            value=f"₹{total_expenses:,.2f}",
+            delta=f"-₹{total_expenses:,.0f}",
+            delta_color="inverse",
+        )
     with m_col5:
-        st.metric(label="🏦 Net Balance (Wallet)", value=f"₹{net_balance:,.2f}")
+        st.metric(
+            label="🏦 Net Balance (Wallet)", value=f"₹{net_balance:,.2f}"
+        )
 
     st.markdown("---")
 
@@ -354,49 +407,82 @@ if choice == "Dashboard Overview":
 
     with exp_col1:
         st.markdown("#### ➕ Add New Expense")
-        exp_purpose = st.selectbox("Expense Purpose / Category", [
-            "Teacher & Staff Salary", 
-            "School Infrastructure & Furniture", 
-            "Electricity & Utility Bills", 
-            "Lab & Computers Maintenance", 
-            "Library Books Purchase", 
-            "Sports & ECA Equipment",
-            "Stationery & Printing",
-            "Miscellaneous Expenses"
-        ])
-        exp_amount = st.number_input("Amount Invested/Spent (₹)", min_value=0.0, step=500.0, value=0.0)
-        
-        if st.button("Log Expense", type="secondary", use_container_width=True):
+        exp_purpose = st.selectbox(
+            "Expense Purpose / Category",
+            [
+                "Teacher & Staff Salary",
+                "School Infrastructure & Furniture",
+                "Electricity & Utility Bills",
+                "Lab & Computers Maintenance",
+                "Library Books Purchase",
+                "Sports & ECA Equipment",
+                "Stationery & Printing",
+                "Miscellaneous Expenses",
+            ],
+        )
+        exp_amount = st.number_input(
+            "Amount Invested/Spent (₹)", min_value=0.0, step=500.0, value=0.0
+        )
+
+        if st.button(
+            "Log Expense", type="secondary", use_container_width=True
+        ):
             if is_admin():  # 🔐 Admin Security Lock
-                try:
-                    today_str = datetime.date.today().strftime("%Y-%m-%d")
-                    supabase.table("expenses").insert({
-                        "purpose": exp_purpose,
-                        "amount": exp_amount,
-                        "date": today_str
-                    }).execute()
-                    st.success("Expense added successfully!")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Failed to log expense: {e}")
+                if supabase:
+                    try:
+                        today_str = datetime.date.today().strftime("%Y-%m-%d")
+                        supabase.table("expenses").insert(
+                            {
+                                "purpose": exp_purpose,
+                                "amount": exp_amount,
+                                "date": today_str,
+                            }
+                        ).execute()
+                        st.success("Expense added successfully!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Failed to log expense: {e}")
+                else:
+                    st.error("Supabase Client is not connected.")
+            else:
+                st.warning("⚠️ Only Admins can log expenses!")
 
     with exp_col2:
         st.markdown("#### 📜 Recent Expense Ledger")
-        try:
-            exp_ledger_res = supabase.table("expenses").select("*").order("expense_id", desc=True).execute()
-            if exp_ledger_res.data:
-                df_exp = pd.DataFrame(exp_ledger_res.data)
-                df_exp = df_exp.rename(columns={
-                    "expense_id": "ID",
-                    "purpose": "Description / Purpose",
-                    "amount": "Spent Amount (₹)",
-                    "date": "Date"
-                })
-                st.dataframe(df_exp[["ID", "Description / Purpose", "Spent Amount (₹)", "Date"]], use_container_width=True, hide_index=True)
-            else:
-                st.info("No school expenses logged yet.")
-        except Exception as e:
-            st.error(f"Error loading expense ledger: {e}")
+        if supabase:
+            try:
+                exp_ledger_res = (
+                    supabase.table("expenses")
+                    .select("*")
+                    .order("expense_id", desc=True)
+                    .execute()
+                )
+                if exp_ledger_res.data:
+                    df_exp = pd.DataFrame(exp_ledger_res.data)
+                    df_exp = df_exp.rename(
+                        columns={
+                            "expense_id": "ID",
+                            "purpose": "Description / Purpose",
+                            "amount": "Spent Amount (₹)",
+                            "date": "Date",
+                        }
+                    )
+                    st.dataframe(
+                        df_exp[
+                            [
+                                "ID",
+                                "Description / Purpose",
+                                "Spent Amount (₹)",
+                                "Date",
+                            ]
+                        ],
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+                else:
+                    st.info("No school expenses logged yet.")
+            except Exception as e:
+                st.error(f"Error loading expense ledger: {e}")
 
     st.markdown("---")
 
@@ -405,35 +491,64 @@ if choice == "Dashboard Overview":
 
     with col_left:
         st.write("**Top Performers List**")
-        try:
-            marks_res = supabase.table("marks").select("roll_no, subject, marks_obtained, total_marks").execute()
-            stud_res = supabase.table("students").select("roll_no, name").execute()
-            
-            if marks_res.data and stud_res.data:
-                df_m = pd.DataFrame(marks_res.data)
-                df_s = pd.DataFrame(stud_res.data)
-                df_m['pct'] = (df_m['marks_obtained'] / df_m['total_marks']) * 100
-                top_perf = pd.merge(df_m, df_s, on="roll_no").sort_values(by="pct", ascending=False).head(3)
-                st.dataframe(top_perf[['name', 'subject', 'pct']], use_container_width=True)
-            else:
-                st.info("No records to rank.")
-        except Exception as e:
-            st.error(f"Error loading leaderboard: {e}")
+        if supabase:
+            try:
+                marks_res = (
+                    supabase.table("marks")
+                    .select("roll_no, subject, marks_obtained, total_marks")
+                    .execute()
+                )
+                stud_res = (
+                    supabase.table("students").select("roll_no, name").execute()
+                )
+
+                if marks_res.data and stud_res.data:
+                    df_m = pd.DataFrame(marks_res.data)
+                    df_s = pd.DataFrame(stud_res.data)
+                    df_m["pct"] = (
+                        df_m["marks_obtained"] / df_m["total_marks"]
+                    ) * 100
+                    top_perf = (
+                        pd.merge(df_m, df_s, on="roll_no")
+                        .sort_values(by="pct", ascending=False)
+                        .head(3)
+                    )
+                    st.dataframe(
+                        top_perf[["name", "subject", "pct"]],
+                        use_container_width=True,
+                    )
+                else:
+                    st.info("No records to rank.")
+            except Exception as e:
+                st.error(f"Error loading leaderboard: {e}")
 
     with col_right:
         st.write("**Currently Issued Library Books**")
-        try:
-            lib_res = supabase.table("library").select("roll_no, book_name, issue_date").eq("status", "Issued").execute()
-            stud_res = supabase.table("students").select("roll_no, name").execute()
-            if lib_res.data and stud_res.data:
-                df_l = pd.DataFrame(lib_res.data)
-                df_s = pd.DataFrame(stud_res.data)
-                lib_books = pd.merge(df_l, df_s, on="roll_no").rename(columns={"name": "Student", "book_name": "Book"})
-                st.dataframe(lib_books[['Student', 'Book', 'issue_date']], use_container_width=True)
-            else:
-                st.info("No books issued currently.")
-        except Exception as e:
-            st.error(f"Error loading library list: {e}")
+        if supabase:
+            try:
+                lib_res = (
+                    supabase.table("library")
+                    .select("roll_no, book_name, issue_date")
+                    .eq("status", "Issued")
+                    .execute()
+                )
+                stud_res = (
+                    supabase.table("students").select("roll_no, name").execute()
+                )
+                if lib_res.data and stud_res.data:
+                    df_l = pd.DataFrame(lib_res.data)
+                    df_s = pd.DataFrame(stud_res.data)
+                    lib_books = pd.merge(df_l, df_s, on="roll_no").rename(
+                        columns={"name": "Student", "book_name": "Book"}
+                    )
+                    st.dataframe(
+                        lib_books[["Student", "Book", "issue_date"]],
+                        use_container_width=True,
+                    )
+                else:
+                    st.info("No books issued currently.")
+            except Exception as e:
+                st.error(f"Error loading library list: {e}")
 
 # --- 2. STUDENT PROFILES ---
 elif choice == "Student Profiles":
