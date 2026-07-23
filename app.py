@@ -225,7 +225,7 @@ if not st.session_state.get("logged_in", False):
             st.markdown(
                 """
             <div class="contact-box">
-                📞 <b>Phone:</b> 977-1-6638704<br>
+                📞 <b>Head Teacher: Ram Niwas Chauhan:</b>Phone: +977 9806928278 <br>
                 🎧 <b>Support:</b> +9779709089702<br>
                 ✉️ <b>Email:</b> iemis@cehrd.gov.np
             </div>
