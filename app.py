@@ -162,23 +162,26 @@ if not st.session_state.get("logged_in", False):
             background-color: #1d4ed8;
             box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
         }
-        # Yeh CSS aapke Streamlit script ke shuru me hona chahiye (ya top per inject karein)
+
+
+
+
+# Line 170 ke paas aisa code rakhein (Triple Quotes triple quotes """ ... """ mandatory hain):
+
 st.markdown(
     """
     <style>
-    /* Contact Box styling */
     .contact-box {
         background-color: rgba(255, 255, 255, 0.95) !important;
         padding: 16px;
         border-radius: 10px;
         margin-top: 12px;
-        color: #1e293b !important; /* Dark legible text color */
+        color: #1e293b !important;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     
-    /* Header title fix */
     .header-title {
-        color: #1e3a8a !important; /* Deep Blue color for readability over background */
+        color: #1e3a8a !important;
         font-size: 28px !important;
         font-weight: 700 !important;
         margin-top: 10px;
@@ -186,7 +189,9 @@ st.markdown(
         line-height: 1.3;
     }
     </style>
-    """, unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
 
     # Center Login Card on Screen
     _, center_col, _ = st.columns([0.3, 3.4, 0.3])
