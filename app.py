@@ -74,45 +74,40 @@ if not st.session_state["logged_in"]:
     background-attachment: fixed;
 }
 
-        /* Solid Crisp White Card with Subtle Drop Shadow */
-        .login-card {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0px 15px 35px rgba(15, 23, 42, 0.08);
-            border: 1px solid #cbd5e1;
-        }
+/* Solid Glassmorphism Card like IEMIS */
+.login-card {
+    background-color: rgba(255, 255, 255, 0.88) !important; /* Semi-transparent White */
+    backdrop-filter: blur(10px); /* Glass Blur Effect */
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0px 15px 35px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
 
-        .govt-badge {
-            background-color: #eff6ff;
-            color: #1d4ed8;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 20px;
-            border: 1px solid #bfdbfe;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 12px;
-        }
+/* Clear Dark Text for Readability */
+.header-title {
+    color: #0f172a !important;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 12px;
+}
 
-        .header-title {
-            color: #0f172a; /* Extra Dark Blue-Black for Best Readability */
-            font-size: 20px;
-            font-weight: 700;
-            line-height: 1.35;
-            margin-bottom: 12px;
-        }
-        
-        .sub-title {
-            color: #334155;
-            font-size: 13.5px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            border-left: 3px solid #2563eb;
-            padding-left: 10px;
-        }
+.login-title {
+    color: #1e3a8a !important;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.sub-title {
+    color: #1e293b !important;
+    font-size: 13.5px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    border-left: 3px solid #2563eb;
+    padding-left: 10px;
+}
 
         .contact-box {
             background-color: #f8fafc;
@@ -124,13 +119,6 @@ if not st.session_state["logged_in"]:
             line-height: 1.8;
         }
 
-        .login-title {
-            color: #1e3a8a; /* Deep Royal Navy Blue */
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            letter-spacing: -0.3px;
-        }
 
         /* Input Fields: Clear Borders and Dark Text */
         .stTextInput label {
