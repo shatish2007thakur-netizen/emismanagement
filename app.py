@@ -164,11 +164,11 @@ if not st.session_state.get("logged_in", False):
         }
 
 
-# Line 170 ke paas aisa code rakhein (Triple Quotes triple quotes """ ... """ mandatory hain):
-
+# --- 1. Custom CSS Inject Karein ---
 st.markdown(
     """
     <style>
+    /* Contact Box styling */
     .contact-box {
         background-color: rgba(255, 255, 255, 0.95) !important;
         padding: 16px;
@@ -178,36 +178,41 @@ st.markdown(
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     
+    /* Header title styling */
     .header-title {
-        color: #1e3a8a !important;
-        font-size: 28px !important;
+        color: #ffffff !important; /* Agar background dark hai toh white rakhein, warna #1e3a8a */
+        font-size: 32px !important;
         font-weight: 700 !important;
         margin-top: 10px;
         margin-bottom: 15px;
         line-height: 1.3;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.8); /* Text readability for background */
+    }
+    
+    /* Official Badge styling */
+    .govt-badge {
+        background-color: #e0e7ff;
+        color: #3730a3;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-    # Center Login Card on Screen
-    _, center_col, _ = st.columns([0.3, 3.4, 0.3])
-
-    with center_col:
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
-        
-        left_col, divider, right_col = st.columns([1.3, 0.1, 1.2])
+# --- 2. Layout Structure ---
+left_col, right_col = st.columns([1.3, 1.2])
 
 # --- LEFT COLUMN: BRANDING ---
 with left_col:
-    # Official Badge
     st.markdown(
         '<span class="govt-badge">Official Portal</span>',
         unsafe_allow_html=True,
     )
-
-    # Title with better visibility
     st.markdown(
         '<div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>',
         unsafe_allow_html=True,
