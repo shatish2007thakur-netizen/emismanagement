@@ -20,11 +20,12 @@ def get_supabase_client() -> Client:
 supabase = get_supabase_client()
 
 
+
 # ==============================================================================
 # --- FULL SCREEN IEMIS LOGIN PAGE ONLY ---
 # ==============================================================================
 if not st.session_state.get("logged_in", False):
-    # 🎨 PROFESSIONAL HIGH-CONTRAST GLASSMORPHISM STYLE
+    # 🎨 HIGH-CONTRAST PROFESSIONAL IEMIS DESIGN
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -33,14 +34,14 @@ if not st.session_state.get("logged_in", False):
             font-family: 'Inter', sans-serif;
         }
 
-        /* Hide Streamlit Default UI Elements */
+        /* Hide Streamlit Default Elements */
         [data-testid="stSidebar"] {display: none;}
         [data-testid="stHeader"] {display: none;}
         footer {visibility: hidden;}
 
-        /* Premium IEMIS Background Image with Overlay */
+        /* Background Image with Dark Overlay */
         .stApp {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
                               url("https://6a61d41f2c9be6b62f95da0c.imgix.net/sandbox/hello.png?h=4612");
             background-size: cover;
             background-position: center;
@@ -49,24 +50,52 @@ if not st.session_state.get("logged_in", False):
         }
 
         .block-container {
-            padding-top: 5rem !important;
+            padding-top: 3rem !important;
             padding-bottom: 2rem !important;
+            background: transparent !important;
         }
 
-        /* Frosted Glassmorphism IEMIS Login Card */
+        /* Clean Transparent Streamlit Wrappers */
+        [data-testid="stVerticalBlock"] > div,
+        [data-testid="stColumn"],
+        [data-testid="stMarkdownContainer"] {
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* 👑 TOP HEADER CARD (For IEMIS Title) */
+        .top-header-card {
+            background-color: #ffffff !important;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .main-portal-title {
+            color: #0f172a !important;
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.2px;
+        }
+
+        /* 🏢 MAIN LOGIN CARD */
         .login-card {
-            background: rgba(255, 255, 255, 0.88) !important;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            padding: 35px;
             border-radius: 16px;
-            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.35);
+            border: 1px solid #cbd5e1;
         }
 
         .govt-badge {
-            background-color: #dbeafe;
-            color: #1e40af;
+            background-color: #eff6ff;
+            color: #1d4ed8;
             font-size: 11px;
             font-weight: 700;
             padding: 4px 12px;
@@ -78,26 +107,18 @@ if not st.session_state.get("logged_in", False):
             margin-bottom: 12px;
         }
 
-        .header-title {
-            color: #0f172a !important; /* Extra Dark Blue-Black for Readability */
-            font-size: 20px;
-            font-weight: 700;
-            line-height: 1.35;
-            margin-bottom: 12px;
-        }
-        
         .sub-title {
             color: #0f172a !important;
-            font-size: 13.5px;
-            font-weight: 500;
-            line-height: 1.6;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.7;
             margin-bottom: 20px;
-            border-left: 3px solid #2563eb;
-            padding-left: 10px;
+            border-left: 4px solid #2563eb;
+            padding-left: 12px;
         }
 
         .contact-box {
-            background-color: rgba(248, 250, 252, 0.8);
+            background-color: #f8fafc;
             border: 1px solid #cbd5e1;
             padding: 12px 15px;
             border-radius: 8px;
@@ -107,14 +128,13 @@ if not st.session_state.get("logged_in", False):
         }
 
         .login-title {
-            color: #1e3a8a !important; /* Deep Royal Navy Blue */
+            color: #1e3a8a !important;
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 20px;
-            letter-spacing: -0.3px;
         }
 
-        /* Input Fields: High Contrast Text & Borders */
+        /* Input Fields Styling */
         .stTextInput label {
             color: #0f172a !important;
             font-weight: 600 !important;
@@ -128,13 +148,8 @@ if not st.session_state.get("logged_in", False):
             color: #0f172a !important;
             background-color: #ffffff !important;
         }
-        
-        .stTextInput > div > div > input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-        }
 
-        /* Primary Login Button */
+        /* Primary Button */
         div.stButton > button {
             background-color: #2563eb;
             color: #ffffff;
@@ -145,28 +160,29 @@ if not st.session_state.get("logged_in", False):
             font-weight: 600;
             border: none;
             box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
-            transition: all 0.2s ease-in-out;
-        }
-        
-        div.stButton > button:hover {
-            background-color: #1d4ed8;
-            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
         }
     </style>
     """, unsafe_allow_html=True)
 
-    # Center Login Card on Screen
-    _, center_col, _ = st.columns([0.3, 3.4, 0.3])
+    # Center Layout
+    _, center_col, _ = st.columns([0.2, 3.6, 0.2])
 
     with center_col:
+        # 1️⃣ TOP WHITE CARD FOR TITLE ONLY
+        st.markdown("""
+        <div class="top-header-card">
+            <div class="main-portal-title">🇳🇵 Integrated Educational Management Information System (IEMIS)</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # 2️⃣ MAIN LOGIN CARD BELOW IT
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
         
         left_col, divider, right_col = st.columns([1.3, 0.1, 1.2])
 
-        # --- LEFT COLUMN: BRANDING ---
+        # --- LEFT COLUMN: NEPAL GOVT DETAILS ---
         with left_col:
             st.markdown('<span class="govt-badge">Official Portal</span>', unsafe_allow_html=True)
-            st.markdown('<div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
             
             st.markdown("""
             <div class="sub-title">
@@ -187,7 +203,7 @@ if not st.session_state.get("logged_in", False):
 
         # --- CENTER DIVIDER ---
         with divider:
-            st.markdown("<div style='border-left: 1.5px solid #94a3b8; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='border-left: 1.5px solid #cbd5e1; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
 
         # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
@@ -211,7 +227,6 @@ if not st.session_state.get("logged_in", False):
 
             st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
 
-            # Guest / Public Read-Only Button
             if st.button("🌐 Continue as Guest (Read-Only)", key="guest_btn"):
                 st.session_state["logged_in"] = True
                 st.session_state["user_role"] = "Guest"
@@ -219,7 +234,7 @@ if not st.session_state.get("logged_in", False):
 
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Login screen stop
+    # Stop rendering rest of app until logged in
     st.stop()
 
 # ==============================================================================
