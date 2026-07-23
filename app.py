@@ -67,7 +67,7 @@ if not st.session_state["logged_in"]:
 /* Premium IEMIS Background Image with Overlay */
 .stApp {
     background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
-                      url("https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?q=80&w=1920&auto=format&fit=crop");
+                      url("https://6a61d41f2c9be6b62f95da0c.imgix.net/sandbox/hello.png?h=4612");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
