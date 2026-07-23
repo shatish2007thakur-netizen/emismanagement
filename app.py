@@ -24,7 +24,7 @@ supabase = get_supabase_client()
 # --- FULL SCREEN IEMIS LOGIN PAGE ONLY ---
 # ==============================================================================
 if not st.session_state.get("logged_in", False):
-    # 🎨 GUARANTEED NO-EXTRA-WHITE-BOX CSS FIX
+    # 🎨 PROFESSIONAL HIGH-CONTRAST GLASSMORPHISM STYLE
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -51,26 +51,16 @@ if not st.session_state.get("logged_in", False):
         .block-container {
             padding-top: 5rem !important;
             padding-bottom: 2rem !important;
-            background: transparent !important;
-        }
-
-        /* ❌ REMOVE ALL STREAMLIT EXTRA BACKGROUND BOXES ❌ */
-        [data-testid="stVerticalBlock"] > div,
-        [data-testid="stColumn"],
-        [data-testid="stMarkdownContainer"] {
-            background-color: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
         }
 
         /* Frosted Glassmorphism IEMIS Login Card */
         .login-card {
-            background: rgba(255, 255, 255, 0.90) !important;
+            background: rgba(255, 255, 255, 0.88) !important;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             padding: 40px;
             border-radius: 16px;
-            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.6);
         }
 
@@ -89,7 +79,7 @@ if not st.session_state.get("logged_in", False):
         }
 
         .header-title {
-            color: #0f172a !important;
+            color: #0f172a !important; /* Extra Dark Blue-Black for Readability */
             font-size: 20px;
             font-weight: 700;
             line-height: 1.35;
@@ -107,7 +97,7 @@ if not st.session_state.get("logged_in", False):
         }
 
         .contact-box {
-            background-color: rgba(248, 250, 252, 0.85);
+            background-color: rgba(248, 250, 252, 0.8);
             border: 1px solid #cbd5e1;
             padding: 12px 15px;
             border-radius: 8px;
@@ -117,7 +107,7 @@ if not st.session_state.get("logged_in", False):
         }
 
         .login-title {
-            color: #1e3a8a !important;
+            color: #1e3a8a !important; /* Deep Royal Navy Blue */
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 20px;
