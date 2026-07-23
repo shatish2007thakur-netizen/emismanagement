@@ -164,48 +164,19 @@ if not st.session_state.get("logged_in", False):
         }
 
 
-# --- 1. Custom CSS Inject Karein ---
 st.markdown(
     """
     <style>
-    /* Contact Box styling */
-    .contact-box {
-        background-color: rgba(255, 255, 255, 0.95) !important;
-        padding: 16px;
-        border-radius: 10px;
-        margin-top: 12px;
-        color: #1e293b !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Header title styling */
     .header-title {
-        color: #ffffff !important; /* Agar background dark hai toh white rakhein, warna #1e3a8a */
-        font-size: 32px !important;
-        font-weight: 700 !important;
-        margin-top: 10px;
-        margin-bottom: 15px;
-        line-height: 1.3;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.8); /* Text readability for background */
-    }
-    
-    /* Official Badge styling */
-    .govt-badge {
-        background-color: #e0e7ff;
-        color: #3730a3;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
+        font-size: 36px !important;
+        font-weight: 700;
+        line-height: 1.2;
     }
     </style>
+    <div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>
     """,
     unsafe_allow_html=True,
 )
-
-# --- 2. Layout Structure ---
-left_col, right_col = st.columns([1.3, 1.2])
 
 # --- LEFT COLUMN: BRANDING ---
 with left_col:
