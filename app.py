@@ -20,6 +20,7 @@ def get_supabase_client() -> Client:
 supabase = get_supabase_client()
 
 
+import streamlit as st
 
 # ==============================================================================
 # --- FULL SCREEN IEMIS LOGIN PAGE ONLY ---
@@ -52,11 +53,21 @@ if not st.session_state.get("logged_in", False):
         .block-container {
             padding-top: 5rem !important;
             padding-bottom: 2rem !important;
+            background: transparent !important;
+        }
+
+        /* Remove Default Container Backgrounds */
+        [data-testid="stVerticalBlock"] > div,
+        [data-testid="stColumn"],
+        [data-testid="stMarkdownContainer"] {
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
         }
 
         /* Frosted Glassmorphism IEMIS Login Card */
         .login-card {
-            background: rgba(255, 255, 255, 0.88) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             padding: 40px;
@@ -80,7 +91,7 @@ if not st.session_state.get("logged_in", False):
         }
 
         .header-title {
-            color: #0f172a !important; /* Extra Dark Blue-Black for Readability */
+            color: #0f172a !important;
             font-size: 20px;
             font-weight: 700;
             line-height: 1.35;
@@ -98,7 +109,7 @@ if not st.session_state.get("logged_in", False):
         }
 
         .contact-box {
-            background-color: rgba(248, 250, 252, 0.8);
+            background-color: rgba(248, 250, 252, 0.95);
             border: 1px solid #cbd5e1;
             padding: 12px 15px;
             border-radius: 8px;
@@ -108,14 +119,14 @@ if not st.session_state.get("logged_in", False):
         }
 
         .login-title {
-            color: #1e3a8a !important; /* Deep Royal Navy Blue */
+            color: #1e3a8a !important;
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 20px;
             letter-spacing: -0.3px;
         }
 
-        /* Input Fields: High Contrast Text & Borders */
+        /* Input Fields */
         .stTextInput label {
             color: #0f172a !important;
             font-weight: 600 !important;
@@ -229,7 +240,7 @@ if not st.session_state.get("logged_in", False):
 
 # Sidebar Settings
 st.sidebar.title("🔐 Access Control")
-st.sidebar.write(f"Logged in as: **{st.session_state['user_role']}**")
+st.sidebar.write(f"Logged in as: **{st.session_state.get('user_role', 'Guest')}**")
 
 if st.sidebar.button("Logout"):
     st.session_state["logged_in"] = False
@@ -237,7 +248,7 @@ if st.sidebar.button("Logout"):
     st.rerun()
 
 # ------------------------------------------------------------------------------
-# AAPKA DASHBOARD CODE
+# DASHBOARD CODE
 # ------------------------------------------------------------------------------
 st.title("🏫 School Performance & Real-time Statistics")
 
@@ -251,8 +262,8 @@ col5.metric("Net Balance (Wallet)", "₹8,550.00")
 
 st.markdown("---")
 
-# Data Edit Option check
-if is_admin():
+# Data Edit Option Check (Fixed Bug Here)
+if st.session_state.get("user_role") == "Admin":
     st.success("✅ Admin Rights Active: Aap yahan student, teacher ya payment details add/edit kar sakte hain.")
 
 
