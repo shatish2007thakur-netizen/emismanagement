@@ -162,57 +162,39 @@ if not st.session_state.get("logged_in", False):
             background-color: #1d4ed8;
             box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
         }
-
-
-st.markdown(
-    """
-    <style>
-    .header-title {
-        font-size: 36px !important;
-        font-weight: 700;
-        line-height: 1.2;
-    }
     </style>
-    <div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>
-    """,
-    unsafe_allow_html=True,
-)
+    """, unsafe_allow_html=True)
 
-# --- LEFT COLUMN: BRANDING ---
-with left_col:
-    st.markdown(
-        '<span class="govt-badge">Official Portal</span>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>',
-        unsafe_allow_html=True,
-    )
+    # Center Login Card on Screen
+    _, center_col, _ = st.columns([0.3, 3.4, 0.3])
 
-    # Govt Info Box
-    st.markdown(
-        """
-        <div class="contact-box">
-            <span style="font-size: 18px; font-weight: bold; color: #000;">नेपाल सरकार</span><br>
-            <span style="color: #333;">शिक्षा, विज्ञान तथा प्रविधि मन्त्रालय</span><br>
-            <span style="color: #333;">शिक्षा तथा मानवस्रोत विकास केन्द्र</span><br>
-            <span style="color: #555; font-size: 14px;">सानोठिमी, भक्तपुर</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    with center_col:
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        
+        left_col, divider, right_col = st.columns([1.3, 0.1, 1.2])
 
-    # Contact Info Box
-    st.markdown(
-        """
-        <div class="contact-box">
-            📞 <b>Phone:</b> <span style="color: #333;">977-1-6638704</span><br>
-            🎧 <b>Support:</b> <span style="color: #333;">+9779709089702</span><br>
-            ✉️ <b>Email:</b> <span style="color: #333;">iemis@cehrd.gov.np</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        # --- LEFT COLUMN: BRANDING ---
+        with left_col:
+            st.markdown('<span class="govt-badge">Official Portal</span>', unsafe_allow_html=True)
+            st.markdown('<div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
+            
+            st.markdown("""
+            <div class="sub-title">
+                <b>नेपाल सरकार</b><br>
+                शिक्षा, विज्ञान तथा प्रविधि मन्त्रालय<br>
+                शिक्षा तथा मानवस्रोत विकास केन्द्र<br>
+                सानोठिमी, भक्तपुर
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown("""
+            <div class="contact-box">
+                📞 <b>Phone:</b> 977-1-6638704<br>
+                🎧 <b>Support:</b> +9779709089702<br>
+                ✉️ <b>Email:</b> iemis@cehrd.gov.np
+            </div>
+            """, unsafe_allow_html=True)
+
         # --- CENTER DIVIDER ---
         with divider:
             st.markdown("<div style='border-left: 1.5px solid #94a3b8; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
@@ -291,7 +273,6 @@ col4.metric("💸 Total Expenses", "₹31,700.00", delta="-₹31,700")
 col5.metric("🏦 Net Balance (Wallet)", "₹7,050.00")
 
 st.markdown("---")
-
 
 
 # --- SIDEBAR NAVIGATION ---
