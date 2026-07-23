@@ -64,15 +64,15 @@ if not st.session_state["logged_in"]:
         [data-testid="stSidebar"] {display: none;}
         [data-testid="stHeader"] {display: none;}
         
-        /* Premium Soothing Professional Background */
-        .stApp {
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-        }
-        
-        .block-container {
-            padding-top: 4rem;
-            padding-bottom: 2rem;
-        }
+/* Premium IEMIS Background Image with Overlay */
+.stApp {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
+                      url("https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?q=80&w=1920&auto=format&fit=crop");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
 
         /* Solid Crisp White Card with Subtle Drop Shadow */
         .login-card {
@@ -184,7 +184,7 @@ if not st.session_state["logged_in"]:
         # --- LEFT COLUMN: BRANDING ---
         with left_col:
             st.markdown('<span class="govt-badge">Official Portal</span>', unsafe_allow_html=True)
-            st.markdown('<div class="header-title">🇳🇵 Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
+            st.markdown('<div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
             
             st.markdown("""
             <div class="sub-title">
