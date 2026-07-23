@@ -179,7 +179,7 @@ if not st.session_state.get("logged_in", False):
             st.markdown('<div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
             
             st.markdown("""
-            <div class="sub-title">
+            <div class="contact-box">
                 <b>नेपाल सरकार</b><br>
                 शिक्षा, विज्ञान तथा प्रविधि मन्त्रालय<br>
                 शिक्षा तथा मानवस्रोत विकास केन्द्र<br>
