@@ -64,15 +64,15 @@ if not st.session_state["logged_in"]:
         [data-testid="stSidebar"] {display: none;}
         [data-testid="stHeader"] {display: none;}
         
-        /* Premium Soothing Professional Background */
-        .stApp {
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-        }
-        
-        .block-container {
-            padding-top: 4rem;
-            padding-bottom: 2rem;
-        }
+/* Premium IEMIS Background Image with Overlay */
+.stApp {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
+                      url("https://6a61d41f2c9be6b62f95da0c.imgix.net/sandbox/schoo%20photo1.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
 
         /* Solid Crisp White Card with Subtle Drop Shadow */
         .login-card {
