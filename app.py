@@ -21,38 +21,10 @@ supabase = get_supabase_client()
 
 
 # ==============================================================================
-# --- 🏢 APP CONFIGURATION ---
-# ==============================================================================
-st.set_page_config(
-    page_title="JANTA EMIS Portal", 
-    page_icon="🏢", 
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
-
-# ==============================================================================
-# --- SESSION STATE INITIALIZATION ---
-# ==============================================================================
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
-if "user_role" not in st.session_state:
-    st.session_state["user_role"] = "Guest"
-
-# ==============================================================================
-# --- HELPER FUNCTION FOR ACCESS CONTROL ---
-# ==============================================================================
-def is_admin():
-    if st.session_state["user_role"] == "Admin":
-        return True
-    else:
-        st.error("🛑 Access Denied: Sirf Admin hi data add, edit ya change kar sakta hai.")
-        return False
-
-# ==============================================================================
 # --- FULL SCREEN IEMIS LOGIN PAGE ONLY ---
 # ==============================================================================
-if not st.session_state["logged_in"]:
-    # 🎨 PERFECT HIGH-CONTRAST COLOR SCHEME
+if not st.session_state.get("logged_in", False):
+    # 🎨 PROFESSIONAL HIGH-CONTRAST GLASSMORPHISM STYLE
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -61,66 +33,98 @@ if not st.session_state["logged_in"]:
             font-family: 'Inter', sans-serif;
         }
 
+        /* Hide Streamlit Default UI Elements */
         [data-testid="stSidebar"] {display: none;}
         [data-testid="stHeader"] {display: none;}
+        footer {visibility: hidden;}
+
+        /* Premium IEMIS Background Image with Overlay */
+        .stApp {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
+                              url("https://6a61d41f2c9be6b62f95da0c.imgix.net/sandbox/hello.png?h=4612");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .block-container {
+            padding-top: 5rem !important;
+            padding-bottom: 2rem !important;
+            background: transparent !important;
+        }
+
+        /* Remove Default Container Backgrounds */
+        [data-testid="stVerticalBlock"] > div,
+        [data-testid="stColumn"],
+        [data-testid="stMarkdownContainer"] {
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Frosted Glassmorphism IEMIS Login Card */
+        .login-card {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .govt-badge {
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #bfdbfe;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .header-title {
+            color: #0f172a !important;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.35;
+            margin-bottom: 12px;
+        }
         
-/* Premium IEMIS Background Image with Overlay */
-.stApp {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
-                      url("https://6a61d41f2c9be6b62f95da0c.imgix.net/sandbox/schoo%20photo1.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}
-
-/* Solid Glassmorphism Card like IEMIS */
-.login-card {
-    background-color: rgba(255, 255, 255, 0.88) !important; /* Semi-transparent White */
-    backdrop-filter: blur(10px); /* Glass Blur Effect */
-    padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0px 15px 35px rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-/* Clear Dark Text for Readability */
-.header-title {
-    color: #0f172a !important;
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1.35;
-    margin-bottom: 12px;
-}
-
-.login-title {
-    color: #1e3a8a !important;
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 20px;
-}
-
-.sub-title {
-    color: #1e293b !important;
-    font-size: 13.5px;
-    line-height: 1.6;
-    margin-bottom: 20px;
-    border-left: 3px solid #2563eb;
-    padding-left: 10px;
-}
+        .sub-title {
+            color: #0f172a !important;
+            font-size: 13.5px;
+            font-weight: 500;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            border-left: 3px solid #2563eb;
+            padding-left: 10px;
+        }
 
         .contact-box {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background-color: rgba(248, 250, 252, 0.95);
+            border: 1px solid #cbd5e1;
             padding: 12px 15px;
             border-radius: 8px;
             font-size: 12.5px;
-            color: #475569;
+            color: #334155;
             line-height: 1.8;
         }
 
+        .login-title {
+            color: #1e3a8a !important;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -0.3px;
+        }
 
-        /* Input Fields: Clear Borders and Dark Text */
+        /* Input Fields */
         .stTextInput label {
             color: #0f172a !important;
             font-weight: 600 !important;
@@ -128,19 +132,19 @@ if not st.session_state["logged_in"]:
 
         .stTextInput > div > div > input {
             border-radius: 8px;
-            border: 1px solid #94a3b8;
+            border: 1.5px solid #64748b;
             padding: 10px 14px;
             font-size: 14px;
-            color: #0f172a;
-            background-color: #ffffff;
+            color: #0f172a !important;
+            background-color: #ffffff !important;
         }
         
         .stTextInput > div > div > input:focus {
             border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
         }
 
-        /* Primary Button */
+        /* Primary Login Button */
         div.stButton > button {
             background-color: #2563eb;
             color: #ffffff;
@@ -150,19 +154,19 @@ if not st.session_state["logged_in"]:
             font-size: 15px;
             font-weight: 600;
             border: none;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
             transition: all 0.2s ease-in-out;
         }
         
         div.stButton > button:hover {
             background-color: #1d4ed8;
-            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
         }
     </style>
     """, unsafe_allow_html=True)
 
     # Center Login Card on Screen
-    _, center_col, _ = st.columns([0.4, 3.2, 0.4])
+    _, center_col, _ = st.columns([0.3, 3.4, 0.3])
 
     with center_col:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
@@ -172,7 +176,7 @@ if not st.session_state["logged_in"]:
         # --- LEFT COLUMN: BRANDING ---
         with left_col:
             st.markdown('<span class="govt-badge">Official Portal</span>', unsafe_allow_html=True)
-            st.markdown('<div class="header-title">🇳🇵 Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
+            st.markdown('<div class="header-title">NP Integrated Educational Management Information System (IEMIS)</div>', unsafe_allow_html=True)
             
             st.markdown("""
             <div class="sub-title">
@@ -193,7 +197,7 @@ if not st.session_state["logged_in"]:
 
         # --- CENTER DIVIDER ---
         with divider:
-            st.markdown("<div style='border-left: 1.5px solid #cbd5e1; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='border-left: 1.5px solid #94a3b8; height: 100%; margin: 0 auto;'></div>", unsafe_allow_html=True)
 
         # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
@@ -228,23 +232,47 @@ if not st.session_state["logged_in"]:
     # Login screen stop
     st.stop()
 
-
 # ==============================================================================
 # --- MAIN DASHBOARD ---
 # ==============================================================================
 
 # Sidebar Settings
 st.sidebar.title("🔐 Access Control")
-st.sidebar.write(f"Logged in as: **{st.session_state['user_role']}**")
+st.sidebar.write(f"Logged in as: **{st.session_state.get('user_role', 'Guest')}**")
 
 if st.sidebar.button("Logout"):
     st.session_state["logged_in"] = False
     st.session_state["user_role"] = "Guest"
     st.rerun()
 
-# Data Edit Option check
-if is_admin():
+# ------------------------------------------------------------------------------
+# 🏦 MAIN EMIS TITLE (FIXED HERE)
+# ------------------------------------------------------------------------------
+st.title("🏦 JANTA SCHOOL EMIS MANAGEMENT SYSTEM")
+st.caption("Complete Educational Management Suite with Advanced Analytics (Cloud Database)")
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# ------------------------------------------------------------------------------
+# DASHBOARD STATS
+# ------------------------------------------------------------------------------
+st.header("🏫 School Performance & Real-time Statistics")
+
+# Data Edit Option Check
+if st.session_state.get("user_role") == "Admin":
     st.success("✅ Admin Rights Active: Aap yahan student, teacher ya payment details add/edit kar sakte hain.")
+
+st.subheader("📈 Real-time Key Metrics")
+
+# Metrics Display
+col1, col2, col3, col4, col5 = st.columns(5)
+col1.metric("👥 Total Students", "17")
+col2.metric("🧑‍🏫 Active Teachers", "6")
+col3.metric("💰 Total Revenue", "₹38,750.00")
+col4.metric("💸 Total Expenses", "₹31,700.00", delta="-₹31,700")
+col5.metric("🏦 Net Balance (Wallet)", "₹7,050.00")
+
+st.markdown("---")
 
 
 
