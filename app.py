@@ -225,9 +225,9 @@ if not st.session_state.get("logged_in", False):
             st.markdown(
                 """
             <div class="contact-box">
-                📞 <b>Head Teacher: Ram Niwas Chauhan:</b>Phone: +977 9806928278 <br>
-                🎧 <b>Support:</b> +9779709089702<br>
-                ✉️ <b>Email:</b> iemis@cehrd.gov.np
+                📞 <b>Head Teacher: Ram Niwas Chauhan:</b>Phone:📞 +977 9806928278<br>
+                🎧 <b>Coordinator, Computer Department: Ramesh Singh Yadav:</b>Phon:📞 +977 9810816071<br>
+                ✉️ <b>Email:jantamabi4@gmail.com</b> 
             </div>
             """,
                 unsafe_allow_html=True,
