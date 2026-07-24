@@ -239,7 +239,7 @@ if not st.session_state.get("logged_in", False):
         with divider:
             st.markdown(
                 "<div style='border-left: 1.5px solid #94a3b8; height: 100%; margin: 0 auto;'></div>",
-                unsafe_allow_html=True,
+                unsafe_allow_html=True,)
         # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
             st.markdown(
