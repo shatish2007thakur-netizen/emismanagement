@@ -28,10 +28,16 @@ if "logged_in" not in st.session_state:
 if "user_role" not in st.session_state:
     st.session_state["user_role"] = "Guest"
 
-# --- HELPER FUNCTIONS ---
-def is_admin() -> bool:
-    """Check if current logged in user has Admin privileges."""
-    return st.session_state.get("user_role") == "Admin"
+# ==============================================================================
+# --- HELPER FUNCTION FOR ACCESS CONTROL ---
+# ==============================================================================
+def is_admin():
+    """Checks if the logged-in user has Admin privileges."""
+    if st.session_state.get("user_role") == "Admin":
+        return True
+    else:
+        st.error("⛔ Access Denied: Only Admins can add or edit records!")
+        return False
 
 
 def calculate_grade(percentage):
