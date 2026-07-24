@@ -248,11 +248,16 @@ if not st.session_state.get("logged_in", False):
                 '<div class="login-title">Account Login</div>',
                 unsafe_allow_html=True,
             )
+username = st.text_input(
+    "👤 Username",
+    placeholder="Enter your username"
+)
 
-            username = st.text_input("Username*" style="font-size: 20px; font-weight: bold;", placeholder="Enter Username")
-            password = st.text_input(
-                "Password*", type="password"style="font-size: 24px; font-weight: bold;", placeholder="Password"
-            )
+password = st.text_input(
+    "🔑 Password",
+    type="password",
+    placeholder="Enter your password"
+)
 
             st.markdown(
                 "<div style='margin-bottom: 15px;'></div>",
