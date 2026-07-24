@@ -242,15 +242,47 @@ if not st.session_state.get("logged_in", False):
                 unsafe_allow_html=True,
             )
 
-        # --- RIGHT COLUMN: LOGIN FORM ---
-        with right_col:
-            st.markdown(
-                '<div class="login-title">Account Login</div>',
-                unsafe_allow_html=True,
-            )
+# --- RIGHT COLUMN: LOGIN FORM ---
+with right_col:
+    # Custom CSS: Input fields aur labels ko bada dikhane ke liye
+    st.markdown(
+        """
+        <style>
+        /* Labels ko bada karne ke liye */
+        div[data-baseweb="form-control"] label {
+            font-size: 18px !important;
+            font-weight: 600 !important;
+        }
+        
+        /* Input box ki height, font size aur padding badhane ke liye */
+        div[data-baseweb="input"] input {
+            font-size: 18px !important;
+            padding: 12px 16px !important;
+            height: 50px !important;
+        }
 
-            username = st.text_input("Username*", placeholder="Enter Username")
-            password = st.text_input("Password*", type="password", placeholder="Password")
+        /* Title styling */
+        .login-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        '<div class="login-title">Account Login</div>',
+        unsafe_allow_html=True,
+    )
+
+    username = st.text_input("Username*", placeholder="Enter Username")
+    password = st.text_input(
+        "Password*", type="password", placeholder="Password"
+    )
+            
+            
             st.markdown(
                 "<div style='margin-bottom: 15px;'></div>",
                 unsafe_allow_html=True,
