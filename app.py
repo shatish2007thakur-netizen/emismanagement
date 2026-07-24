@@ -19,6 +19,15 @@ def get_supabase_client() -> Client:
 
 supabase = get_supabase_client()
 
+# ==============================================================================
+# --- 🏢 APP CONFIGURATION ---
+# ==============================================================================
+st.set_page_config(
+    page_title="JANTA EMIS Portal", 
+    page_icon="🏢", 
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
 # ==============================================================================
 # --- SESSION STATE INITIALIZATION ---
