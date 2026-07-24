@@ -242,37 +242,44 @@ if not st.session_state.get("logged_in", False):
                 unsafe_allow_html=True,
             )
 
-            # --- RIGHT COLUMN: LOGIN FORM ---
-        with right_col:
-            st.markdown(
-                """
-                <style>
-                div[data-baseweb="form-control"] label {
-                    font-size: 18px !important;
-                    font-weight: 600 !important;
-                }
-                div[data-baseweb="input"] input {
-                    font-size: 18px !important;
-                    padding: 12px 16px !important;
-                    height: 50px !important;
-                }
-                .login-title {
-                    font-size: 28px;
-                    font-weight: bold;
-                    margin-bottom: 20px;
-                }
-                </style>
-                """,
-                unsafe_allow_html=True,
-            )
+# --- RIGHT COLUMN: LOGIN FORM ---
+with right_col:
+    st.markdown(
+        """
+        <style>
+        /* Labels ko safed (white), bada aur clear karne ke liye */
+        div[data-widget="text_input"] label p {
+            color: #FFFFFF !important;
+            font-size: 18px !important;
+            font-weight: bold !important;
+        }
+        
+        /* Fallback selector for label text */
+        div[data-baseweb="form-control"] label {
+            color: #FFFFFF !important;
+            font-size: 18px !important;
+            font-weight: bold !important;
+        }
 
-            st.markdown(
-                '<div class="login-title">Account Login</div>',
-                unsafe_allow_html=True,
-            )
+        /* Title styling (Agar title ko bhi bright white karna ho) */
+        .login-title {
+            color: #FFFFFF !important;
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
-            username = st.text_input("Username*", placeholder="Enter Username")
-            password = st.text_input("Password*", type="password", placeholder="Password")
+    st.markdown(
+        '<div class="login-title">Account Login</div>',
+        unsafe_allow_html=True,
+    )
+
+    username = st.text_input("Username*", placeholder="Enter Username")
+    password = st.text_input("Password*", type="password", placeholder="Password")
 
             
             
