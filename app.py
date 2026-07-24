@@ -20,6 +20,14 @@ def get_supabase_client() -> Client:
 supabase = get_supabase_client()
 
 
+# ==============================================================================
+# --- SESSION STATE INITIALIZATION ---
+# ==============================================================================
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+if "user_role" not in st.session_state:
+    st.session_state["user_role"] = "Guest"
+
 # --- HELPER FUNCTIONS ---
 def is_admin() -> bool:
     """Check if current logged in user has Admin privileges."""
