@@ -248,39 +248,25 @@ if not st.session_state.get("logged_in", False):
                 '<div class="login-title">Account Login</div>',
                 unsafe_allow_html=True,
             )
-st.markdown("""
-<style>
-div[data-testid="stTextInput"] label {
-    font-size: 20px;
-    font-weight: bold;
+    st.markdown("""
+        <style>
+            div[data-testid="stTextInput"] label {
+        font-size: 20px;
+        font-weight: bold;
 }
 
-div[data-testid="stTextInput"] input {
+    div[data-testid="stTextInput"] input {
     font-size: 18px;
     padding: 10px;
     border-radius: 8px;
 }
 </style>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-st.markdown("### 🔐 Login")
+    st.markdown("### 🔐 Login")
 
-username = st.text_input(
-    "👤 Username",
-    placeholder="Enter your username"
-)
-
-password = st.text_input(
-    "🔑 Password",
-    type="password",
-    placeholder="Enter your password"
-)
-
-password = st.text_input(
-    "🔑 Password",
-    type="password",
-    placeholder="Enter your password"
-)
+    username = st.text_input("👤 Username",placeholder="Enter your username")
+    password = st.text_input("🔑 Password",type="password",placeholder="Enter your password)
 
             st.markdown(
                 "<div style='margin-bottom: 15px;'></div>",
