@@ -240,11 +240,11 @@ if not st.session_state.get("logged_in", False):
             st.markdown(
                 "<div style='border-left: 1.5px solid #94a3b8; height: 100%; margin: 0 auto;'></div>",
                 unsafe_allow_html=True,
-# --- RIGHT COLUMN: LOGIN FORM ---
-with right_col:
-    st.markdown(
-        """
-        <style>
+        # --- RIGHT COLUMN: LOGIN FORM ---
+        with right_col:
+            st.markdown(
+                """
+                <style>
         /* Labels ko white, bada aur clear karne ke liye */
         div[data-testid="stWidgetLabel"] label p,
         div[data-testid="stWidgetLabel"] label,
@@ -262,20 +262,11 @@ with right_col:
             margin-bottom: 20px !important;
         }
         </style>
-        """,
-        unsafe_allow_html=True,
-    )
+        """,unsafe_allow_html=True,)
 
-    st.markdown(
-        '<div class="login-title">Account Login</div>',
-        unsafe_allow_html=True,
-    )
-
+    st.markdown('<div class="login-title">Account Login</div>',unsafe_allow_html=True,)
     username = st.text_input("Username*", placeholder="Enter Username")
-    password = st.text_input(
-        "Password*", type="password", placeholder="Password"
-    )
-
+    password = st.text_input("Password*", type="password", placeholder="Password")
                         
             st.markdown(
                 "<div style='margin-bottom: 15px;'></div>",
