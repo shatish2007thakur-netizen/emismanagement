@@ -249,9 +249,9 @@ if not st.session_state.get("logged_in", False):
                 unsafe_allow_html=True,
             )
 
-            username = st.text_input("Username*", placeholder="Enter Username")
+            username = st.text_input("Username*" style="font-size: 20px; font-weight: bold;", placeholder="Enter Username")
             password = st.text_input(
-                "Password*", type="password", placeholder="Password"
+                "Password*", type="password"style="font-size: 24px; font-weight: bold;", placeholder="Password"
             )
 
             st.markdown(
