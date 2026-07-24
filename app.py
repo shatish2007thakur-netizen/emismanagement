@@ -226,7 +226,7 @@ if not st.session_state.get("logged_in", False):
                 """
             <div class="contact-box">
                 <b>👨‍🏫Head Teacher: Ram Niwas Chauhan</b>
-                <b>Phone No.:📞 +977 9806928278<b>
+                <br>Phone No.:📞 +977 9806928278<br>
                 <b>💻Coordinator of Computer Department: Ramesh Singh Yadav</b>
                 <b>Phone No.:📞 +977 9810816071<b>
                 ✉️ <b>Email:jantamabi4@gmail.com</b> 
