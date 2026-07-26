@@ -230,7 +230,6 @@ if not st.session_state.get("logged_in", False):
             unsafe_allow_html=True,
             )
             
-            )
             st.markdown(
                 '<div class="header-title" style="font-size: 24px; font-weight: bold;">NP Integrated Educational Management Information System (IEMIS)</div>',
                 unsafe_allow_html=True,
