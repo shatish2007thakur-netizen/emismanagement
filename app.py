@@ -225,10 +225,11 @@ if not st.session_state.get("logged_in", False):
 
         # --- LEFT COLUMN: BRANDING ---
         with left_col:
-st.markdown(
-    '<span style="background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block;">OFFICIAL PORTAL</span>',
-    unsafe_allow_html=True,
-)
+            st.markdown(
+                '<span style="background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block;">OFFICIAL PORTAL</span>',
+            unsafe_allow_html=True,
+            )
+            
             )
             st.markdown(
                 '<div class="header-title" style="font-size: 24px; font-weight: bold;">NP Integrated Educational Management Information System (IEMIS)</div>',
