@@ -265,12 +265,11 @@ if not st.session_state.get("logged_in", False):
                 "<div style='border-left: 1.5px solid #94a3b8; height: 100%; margin: 0 auto;'></div>",
                 unsafe_allow_html=True,)
  
-# --- RIGHT COLUMN: LOGIN FORM ---
+        # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
             st.markdown(
-                '<h2 style="color: #00d2ff !important; font-size: 28px !important; font-weight: 800 !important; margin-bottom: 15px !important;">Account Login</h2>',
+                '<div class="login-title">Account Login</div>',
                 unsafe_allow_html=True,
-            )
         
             username = st.text_input("Username*", placeholder="Enter Username")
             password = st.text_input("Password*", type="password", placeholder="Password")
