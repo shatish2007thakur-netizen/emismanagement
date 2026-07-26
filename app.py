@@ -266,10 +266,12 @@ if not st.session_state.get("logged_in", False):
                 unsafe_allow_html=True,)
         # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
+
+        # Line 269: Yahan 4 spaces ka gap hona chahiye!
         st.markdown(
-            '<div class="login-title" style="color: #dc2626; font-weight: bold;">Account Login</div>',
+        '<div class="login-title" style="color: #dc2626; font-weight: bold;">Account Login</div>',
         unsafe_allow_html=True,
-        )
+    )
         
             username = st.text_input("Username*", placeholder="Enter Username")
             password = st.text_input(
