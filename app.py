@@ -268,7 +268,7 @@ if not st.session_state.get("logged_in", False):
 # --- RIGHT COLUMN: LOGIN FORM ---
         with right_col:
             st.markdown(
-                '<h2 style="color: #dc2626 !important; font-size: 26px !important; font-weight: bold !important; margin-bottom: 15px !important;">Account Login</h2>',
+                '<h2 style="color: #FF2B2B !important; font-size: 28px !important; font-weight: 800 !important; text-shadow: 1px 1px 3px #000000; margin-bottom: 15px !important;">Account Login</h2>',
                 unsafe_allow_html=True,
             )
         
